@@ -10,11 +10,7 @@ TCB *TCB::createThread(Body body) {
 }
 
 void TCB::yield() {
-    Riscv::pushRegisters();
-
-    TCB::dispatch();
-
-    Riscv::popRegisters();
+    asm volatile("ecall");
 }
 
 void TCB::dispatch() {
@@ -24,6 +20,15 @@ void TCB::dispatch() {
     running = Scheduler::get();
 
     TCB::contextSwitch(&old->context, &running->context);
+}
+
+void TCB::threadWrapper(){
+    Riscv::popSppSpie();
+
+    running->body();
+    running->setFinished(true);
+
+    TCB::yield();
 }
 
 void *operator new[](uint64 size) { return __mem_alloc(size); }

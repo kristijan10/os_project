@@ -23,6 +23,10 @@ public:
 
     static void yield();
 
+    static void threadWrapper();
+
+    friend class Riscv;
+
     static TCB *running;
 
 private:
@@ -34,7 +38,7 @@ private:
     explicit TCB(Body body, uint64 timeSlice) :
             body(body),
             stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
-            context({body != nullptr ? (uint64) body : 0,
+            context({(uint64) &threadWrapper,
                      body != nullptr ? (uint64) &stack[STACK_SIZE] : 0}),
             timeSlice(timeSlice),
             finished(false) {

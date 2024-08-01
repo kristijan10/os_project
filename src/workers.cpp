@@ -5,7 +5,7 @@
 
 static uint64 fibonacci(uint64 n) {
     if (n == 0 || n == 1) { return n; }
-    if (n % 4 == 0) TCB::yield();
+    if (n % 10 == 0) TCB::yield();
     return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
@@ -28,7 +28,7 @@ void workerBodyC() {
     printInteger(t1);
     printStr("\n");
 
-    uint64 result = fibonacci(20);
+    uint64 result = fibonacci(12);
     printStr("C: fibonaci=");
     printInteger(result);
     printStr("\n");
@@ -38,9 +38,6 @@ void workerBodyC() {
         printInteger(i);
         printStr("\n");
     }
-
-    TCB::running->setFinished(true);
-    TCB::yield();
 }
 
 void workerBodyD() {
@@ -55,7 +52,7 @@ void workerBodyD() {
     __asm__ ("li t1, 5");
     TCB::yield();
 
-    uint64 result = fibonacci(23);
+    uint64 result = fibonacci(16);
     printStr("D: fibonaci=");
     printInteger(result);
     printStr("\n");
