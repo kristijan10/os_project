@@ -2,11 +2,13 @@
 #define syscall_cpp
 
 #include "../lib/hw.h"
-#include "../h/syscall_c.hpp"
+#include "../h/syscall_c.h"
 
+// ============= MEMORIJA =============
 void *operator new(size_t size);
 void operator delete (void *ptr) noexcept;
 
+// ============= NITI =============
 class Thread{
 public:
     Thread(void (*body)(void *), void *arg);
@@ -19,7 +21,7 @@ public:
 
 protected:
     Thread();
-    virtual void run();
+    virtual void run(){}
 
 private:
     thread_t myHandle;
@@ -27,9 +29,10 @@ private:
     void *arg;
 };
 
+// ============= SEMAFOR =============
 class Semaphore{
 public:
-    Semaphore(unsigned init = 1);
+    explicit Semaphore(unsigned init = 1);
     virtual ~Semaphore();
 
     int wait();
@@ -41,18 +44,20 @@ private:
     sem_t myHandle;
 };
 
+// ============= PERIODICNE NITI =============
 class PeriodicThread : public Thread{
 public:
     void terminate();
 
 protected:
-    PeriodicThread(time_t period);
+    explicit PeriodicThread(time_t period);
     virtual void periodicActivation(){}
 
 private:
     time_t period;
 };
 
+// ============= KONZOLA =============
 class Console{
 public:
     static char getc();
