@@ -14,8 +14,8 @@ enum OpCode{
     SEM_TIMEDWAIT = 0x25,
     SEM_TRYWAIT = 0x26,
     TIME_SLEEP = 0x31,
-    GETC = 0x41,
-    PUTC = 0x42
+    CONSOLE_GETC = 0x41,
+    CONSOLE_PUTC = 0x42
 };
 
 #endif
