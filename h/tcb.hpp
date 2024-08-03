@@ -9,7 +9,7 @@ void operator delete[](void *ptr) noexcept;
 
 class TCB {
 public:
-    using Body = void (*)();
+    using Body = void (*)(void *);
 
     ~TCB() { delete[] stack; }
 
@@ -19,7 +19,7 @@ public:
 
     uint64 getTimeSlice() const{return timeSlice;}
 
-    static TCB *createThread(Body body);
+    static TCB *createThread(Body body, void *arg);
 
     static void yield();
 
@@ -35,12 +35,13 @@ private:
         uint64 sp;
     };
 
-    explicit TCB(Body body, uint64 timeSlice) :
+    explicit TCB(Body body, void *arg, uint64 timeSlice) :
             body(body),
-            stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
+            stack(body != nullptr ? new uint64[DEFAULT_STACK_SIZE] : nullptr),
             context({(uint64) &threadWrapper,
-                     body != nullptr ? (uint64) &stack[STACK_SIZE] : 0}),
+                     body != nullptr ? (uint64) &stack[DEFAULT_STACK_SIZE] : 0}),
             timeSlice(timeSlice),
+            arg(arg),
             finished(false) {
         if (body != nullptr) Scheduler::put(this);
     }
@@ -53,11 +54,9 @@ private:
     uint64 *stack;
     Context context;
     uint64 timeSlice;
+    void *arg;
     bool finished;
     static uint64 timeSliceCounter;
-
-    static uint64 constexpr STACK_SIZE = 1024;
-    static uint64 constexpr TIME_SLICE = 2;
 };
 
 #endif
