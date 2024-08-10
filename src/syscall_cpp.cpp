@@ -1,10 +1,25 @@
 #include "../h/syscall_cpp.hpp"
 #include "../lib/mem.h"
+#include "../h/print.hpp"
 
 // ============= MEMORIJA =============
-void *operator new(size_t size) { return __mem_alloc(size); }
+void *operator new(size_t size) {
+//    void *ptr = mem_alloc(size);
+//    printStr("_cpp: new:");
+//    printInteger((uint64) ptr);
+//    printStr("\n");
 
-void operator delete(void *ptr) noexcept { __mem_free(ptr); }
+    return __mem_alloc(size);
+}
+
+void operator delete(void *ptr) noexcept {
+//    printStr("_cpp: delete:");
+//    printInteger((uint64) ptr);
+//    printStr("\n");
+
+    __mem_free(ptr);
+}
+
 
 // ============= NITI =============
 Thread::Thread(void (*body)(void *), void *arg) :
