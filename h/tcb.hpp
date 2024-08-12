@@ -4,20 +4,15 @@
 #include "../lib/hw.h"
 #include "scheduler.hpp"
 
-void *operator new[](uint64 size);
-void operator delete[](void *ptr) noexcept;
-
 class TCB {
 public:
     using Body = void (*)(void *);
-
-    ~TCB() { delete[] stack; }
 
     bool isFinished() const { return finished; }
 
     void setFinished(bool val) { finished = val; }
 
-    uint64 getTimeSlice() const{return timeSlice;}
+    uint64 getTimeSlice() const { return timeSlice; }
 
     static TCB *createThread(Body body, void *arg);
 
@@ -25,9 +20,17 @@ public:
 
     static void threadWrapper();
 
+    static TCB *getRunning() { return running; }
+
+    static void setRunning(TCB *runn) { running = runn; }
+
     friend class Riscv;
 
-    static TCB *running;
+//    void *operator new(size_t size){return mem_alloc(size);}
+
+//    void operator delete(void *ptr){ mem_free(ptr);}
+
+    ~TCB() { delete[] stack; }
 
 private:
     struct Context {
@@ -57,6 +60,7 @@ private:
     void *arg;
     bool finished;
     static uint64 timeSliceCounter;
+    static TCB *running;
 };
 
 #endif

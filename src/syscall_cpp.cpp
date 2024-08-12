@@ -8,30 +8,35 @@ void *operator new(size_t size) {
 //    printStr("_cpp: new:");
 //    printInteger((uint64) ptr);
 //    printStr("\n");
-
-    return __mem_alloc(size);
+//
+    return mem_alloc(size);
 }
 
 void operator delete(void *ptr) noexcept {
 //    printStr("_cpp: delete:");
 //    printInteger((uint64) ptr);
 //    printStr("\n");
-
-    __mem_free(ptr);
+//
+    mem_free(ptr);
 }
 
+void *operator new[](size_t size){ return mem_alloc(size); }
+void operator delete[](void *ptr) noexcept { mem_free(ptr); }
 
 // ============= NITI =============
 Thread::Thread(void (*body)(void *), void *arg) :
         myHandle(nullptr),
         body(body),
-        arg(arg) {
-    thread_create(&myHandle, body, arg);
-}
+        arg(arg) {}
 
 Thread::~Thread() {}
 
-int Thread::start() { return 0; }
+int Thread::start() {
+    if(body) thread_create(&myHandle, body, arg);
+    else thread_create(&myHandle, wrapper, (void*) this);
+
+    return 0;
+}
 
 void Thread::dispatch() { thread_dispatch(); }
 
@@ -41,6 +46,10 @@ Thread::Thread() :
         myHandle(nullptr),
         body(nullptr),
         arg(nullptr) {}
+
+void Thread::wrapper(void *thread) {
+    ((Thread *) thread)->run();
+}
 
 // ============= SEMAFOR =============
 Semaphore::Semaphore(unsigned int init) : myHandle(nullptr) { sem_open(&myHandle, init); }

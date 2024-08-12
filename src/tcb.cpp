@@ -15,7 +15,6 @@ void TCB::yield() {
     asm volatile("li a0, 0x13");
 
     asm volatile("ecall");
-//dispatch();
 }
 
 void TCB::dispatch() {
@@ -24,7 +23,8 @@ void TCB::dispatch() {
     if (!old->isFinished()) Scheduler::put(old);
     running = Scheduler::get();
 
-    TCB::contextSwitch(&old->context, &running->context);
+    if (old != running)
+        TCB::contextSwitch(&old->context, &running->context);
 }
 
 void TCB::threadWrapper() {
@@ -33,22 +33,22 @@ void TCB::threadWrapper() {
     running->body(running->arg);
     running->setFinished(true);
 
-//    TCB::yield();
-    thread_dispatch();
+    TCB::yield();
+//    thread_dispatch();
 }
 
-void *operator new[](size_t size) {
+//void *TCB::operator new(size_t size) {
 //    void *ptr = mem_alloc(size);
 //    printStr("tcb: new[]:");
 //    printInteger((uint64) ptr);
 //    printStr("\n");
 
-    return __mem_alloc(size);
-}
+//    return mem_alloc(size);
+//}
 
-void operator delete[](void *ptr) noexcept {
-    __mem_free(ptr);
+//void TCB::operator delete(void* ptr) {
+//    mem_free(ptr);
 //    printStr("tcb: delete[]:");
 //    printInteger((uint64) ptr);
 //    printStr("\n");
-}
+//}

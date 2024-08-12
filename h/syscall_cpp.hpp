@@ -5,7 +5,7 @@
 #include "../h/syscall_c.h"
 
 // ============= MEMORIJA =============
-void *operator new(size_t size);
+void *operator new (size_t size);
 void operator delete (void *ptr) noexcept;
 
 // ============= NITI =============
@@ -27,6 +27,8 @@ private:
     thread_t myHandle;
     void (*body)(void *);
     void *arg;
+
+    static void wrapper(void *thread);
 };
 
 // ============= SEMAFOR =============

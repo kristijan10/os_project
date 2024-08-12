@@ -70,19 +70,9 @@ public:
     // supervisor trap
     static void supervisorTrap();
 
-    //stvec Vector "table"
-//    static void stvecVectorTable();
-    //read a0 register
-//    static uint64 r_a0();
-    //write to a0 register
-//    static void w_a0(uint64 writeValue);
-
 private:
     // supervisor trap handler
     static void handleSupervisorTrap();
-
-//    static void handleTimerInterrupt();
-//    static void handleConsoleInterrupt();
 };
 
 
