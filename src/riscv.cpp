@@ -15,16 +15,22 @@ void Riscv::popSppSpie() {
 void Riscv::handleSupervisorTrap() {
     uint64 scause = r_scause();
 
+    uint64 volatile a0, a1, a2, a3;
+    asm volatile("mv %0, a3" : "=r" (a3));
+    asm volatile("mv %0, a2" : "=r" (a2));
+    asm volatile("mv %0, a1" : "=r" (a1));
+    asm volatile("mv %0, a0" : "=r" (a0));
+
     if (scause == 0x0000000000000009UL ||
         scause == 0x0000000000000008UL) {
         // ecall
         uint64 volatile sepc = r_sepc() + 4;
         uint64 volatile sstatus = r_sstatus();
 
-        uint64 opCode;
-        asm volatile("mv %0, a0" : "=r" (opCode));
+//        uint64 opCode;
+//        asm volatile("mv %0, a0" : "=r" (a0));
 
-        switch (opCode) {
+        switch (a0) {
 //            case MEM_ALLOC: {
 //                size_t size;
 //                asm volatile("mv %0, a1" : "=r" (size));
@@ -42,13 +48,10 @@ void Riscv::handleSupervisorTrap() {
 //                break;
 //            }
             case THREAD_CREATE: {
-                TCB **handle;
-                TCB::Body body;
-                void *arg;
+                TCB **handle = (TCB **) a1;
+                TCB::Body body = (TCB::Body) a2;
+                void *arg = (void *) a3;
 
-                asm volatile("mv %0, a3" : "=r" (arg));
-                asm volatile("mv %0, a2" : "=r" (body));
-                asm volatile("mv %0, a1" : "=r" (handle));
 
                 *handle = TCB::createThread(body, arg);
 
@@ -58,6 +61,7 @@ void Riscv::handleSupervisorTrap() {
                 break;
             }
             case THREAD_EXIT: {
+                break;
             }
             case THREAD_DISPATCH: {
                 TCB::timeSliceCounter = 0;
@@ -85,6 +89,8 @@ void Riscv::handleSupervisorTrap() {
         w_sstatus(sstatus);
     } else if (scause == 0x8000000000000001UL) {
         // timer interrupt
+        uint64 volatile sepc = r_sepc();
+        uint64 volatile sstatus = r_sstatus();
 //        TCB::timeSliceCounter++;
 
         mc_sip(SIP_SSIP);
@@ -93,15 +99,11 @@ void Riscv::handleSupervisorTrap() {
 //            TCB::dispatch();
 //        }
 
-//        w_sepc(sepc);
-//        w_sstatus(sstatus);
+        w_sepc(sepc);
+        w_sstatus(sstatus);
     } else if (scause == 0x8000000000000009UL) {
         // console interrupt
         console_handler();
-
-//        w_sepc(sepc);
-//        w_sstatus(sstatus);
-//        mc_sip(Riscv::SIP_SEIP);
     } else {
         printStr("-----------\n");
         printStr("SCAUSE: ");
@@ -113,8 +115,5 @@ void Riscv::handleSupervisorTrap() {
         printStr("STVAL: "); // dodatno objasnjenje interrupt-a
         printInteger(r_stval());
         printStr("\n-----------\n");
-
-//        w_sepc(sepc);
-//        w_sstatus(sstatus);
     }
 }

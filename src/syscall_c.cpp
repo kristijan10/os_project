@@ -4,10 +4,10 @@
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
-    size_t newSize;
-    if (size % MEM_BLOCK_SIZE != 0) {
-        newSize = ((size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
-    } else newSize = size;
+//    size_t newSize;
+//    if (size % MEM_BLOCK_SIZE != 0) {
+//        newSize = ((size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
+//    } else newSize = size;
 //
 //    asm volatile("mv a1, %0" : : "r" (newSize));
 //    asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
@@ -17,7 +17,7 @@ void *mem_alloc(size_t size) {
 //    void *ptr;
 //    asm volatile("mv %0, a0" : "=r" (ptr));
 //    return ptr;
-    return __mem_alloc(newSize);
+    return __mem_alloc(size);
 }
 
 int mem_free(void *ptr) {
@@ -34,9 +34,9 @@ int mem_free(void *ptr) {
 
 // ============= NITI =============
 int thread_create(thread_t *handle, void(*start_routine)(void *), void *arg) {
-    asm volatile("mv a3, %0" : : "r" (arg));
-    asm volatile("mv a2, %0" : : "r" (start_routine));
-    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a3, %0" : : "r" ((uint64) arg));
+    asm volatile("mv a2, %0" : : "r" ((uint64) start_routine));
+    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
     asm volatile("mv a0, %0" : : "r" (THREAD_CREATE));
 
     asm volatile("ecall");

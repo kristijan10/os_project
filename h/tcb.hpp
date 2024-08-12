@@ -40,9 +40,9 @@ private:
 
     explicit TCB(Body body, void *arg, uint64 timeSlice) :
             body(body),
-            stack(body != nullptr ? new uint64[DEFAULT_STACK_SIZE] : nullptr),
+            stack(body != nullptr ? new uint64[1024] : nullptr),
             context({(uint64) &threadWrapper,
-                     body != nullptr ? (uint64) &stack[DEFAULT_STACK_SIZE] : 0}),
+                     body != nullptr ? (uint64) &stack[1024] : 0}),
             timeSlice(timeSlice),
             arg(arg),
             finished(false) {
