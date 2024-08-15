@@ -20,7 +20,8 @@ void operator delete(void *ptr) noexcept {
     mem_free(ptr);
 }
 
-void *operator new[](size_t size){ return mem_alloc(size); }
+void *operator new[](size_t size) { return mem_alloc(size); }
+
 void operator delete[](void *ptr) noexcept { mem_free(ptr); }
 
 // ============= NITI =============
@@ -32,8 +33,8 @@ Thread::Thread(void (*body)(void *), void *arg) :
 Thread::~Thread() {}
 
 int Thread::start() {
-    if(body) thread_create(&myHandle, body, arg);
-    else thread_create(&myHandle, wrapper, (void*) this);
+    if (body) thread_create(&myHandle, body, arg);
+    else thread_create(&myHandle, wrapper, (void *) this);
 
     return 0;
 }
@@ -52,7 +53,7 @@ void Thread::wrapper(void *thread) {
 }
 
 // ============= SEMAFOR =============
-Semaphore::Semaphore(unsigned int init) : myHandle(nullptr) { sem_open(&myHandle, init); }
+Semaphore::Semaphore(unsigned init) : myHandle(nullptr) { sem_open(&myHandle, init); }
 
 Semaphore::~Semaphore() { sem_close(myHandle); }
 

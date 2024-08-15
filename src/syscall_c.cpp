@@ -63,13 +63,50 @@ void thread_dispatch() {
 }
 
 // ============= SEMAFOR =============
-int sem_open(sem_t *handle, unsigned init) { return 0; }
+int sem_open(sem_t *handle, unsigned init) {
+    asm volatile("mv a2, %0" : : "r" (init));
+    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a0, %0" : : "r" (SEM_OPEN));
 
-int sem_close(sem_t handle) { return 0; }
+    asm volatile("ecall");
 
-int sem_wait(sem_t id) { return 0; }
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
 
-int sem_signal(sem_t id) { return 0; }
+int sem_close(sem_t handle) {
+    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a0, %0" : : "r" (SEM_CLOSE));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
+
+int sem_wait(sem_t handle) {
+    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a0, %0" : : "r" (SEM_WAIT));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
+
+int sem_signal(sem_t handle) {
+    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a0, %0" : : "r" (SEM_SIGNAL));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
 
 int sem_timedwait(sem_t id, time_t timeout) { return 0; }
 

@@ -70,9 +70,13 @@ public:
     // supervisor trap
     static void supervisorTrap();
 
+    static void setMode(bool mode){userMode=mode;};
+
 private:
     // supervisor trap handler
     static void handleSupervisorTrap();
+
+    static bool userMode;
 };
 
 
@@ -151,6 +155,10 @@ inline uint64 Riscv::r_sstatus() {
 inline void Riscv::w_sstatus(uint64 sstatus) {
     __asm__ volatile ("csrw sstatus, %[sstatus]" : : [sstatus] "r"(sstatus));
 }
+
+//void Riscv::setMode(bool mode) {
+//    userMode=mode;
+//}
 
 //a0
 //inline uint64 Riscv::r_a0() {

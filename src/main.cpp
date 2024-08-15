@@ -10,20 +10,23 @@ void userMainWrapper(void *) {
 }
 
 int main() {
+    TCB *threads[2];
+
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
 
-    TCB *main = TCB::createThread(nullptr, nullptr);
-    TCB::setRunning(main);
-
-    TCB *user = TCB::createThread(userMainWrapper, nullptr);
+    threads[0] = TCB::createThread(nullptr, nullptr);
+    TCB::setRunning(threads[0]);
 
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
-    while (!user->isFinished()) TCB::yield();
+    threads[1] = TCB::createThread(userMainWrapper, nullptr);
+
+    while (!threads[1]->isFinished()) thread_dispatch();
 
     printStr("Finished!\n");
-    delete user;
-    delete main;
+
+    for(auto thread : threads)
+        delete thread;
 
     return 0;
 }

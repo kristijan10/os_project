@@ -15,21 +15,27 @@ TCB *TCB::createThread(TCB::Body body, void *arg) {
 }
 
 void TCB::yield() {
-    pushRegisters();
+//    pushRegisters();
     asm volatile("li a0, 0x13");
 
     asm volatile("ecall");
-    popRegisters();
+//    popRegisters();
 }
 
 void TCB::dispatch() {
     TCB *old = TCB::running;
 
-    if (!old->isFinished()) Scheduler::put(old);
+    if (!old->isFinished() && !old->isBlocked()) Scheduler::put(old);
     running = Scheduler::get();
 
-    if (old != running)
-        TCB::contextSwitch(&old->context, &running->context);
+//    if (running->body == nullptr) {
+//        Riscv::ms_sstatus(Riscv::SSTATUS_SPP);
+//    } else {
+//        Riscv::mc_sstatus(Riscv::SSTATUS_SPP);
+//    }
+
+//    if (old != running)
+    TCB::contextSwitch(&old->context, &running->context);
 }
 
 void TCB::threadWrapper() {
@@ -38,8 +44,8 @@ void TCB::threadWrapper() {
     running->body(running->arg);
     running->setFinished(true);
 
-    TCB::yield();
-//    thread_dispatch();
+//    TCB::yield();
+    thread_dispatch();
 }
 
 //void *TCB::operator new(size_t size) {

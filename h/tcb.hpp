@@ -18,13 +18,17 @@ public:
 
     static void yield();
 
-    static void threadWrapper();
-
     static TCB *getRunning() { return running; }
 
     static void setRunning(TCB *runn) { running = runn; }
 
+    bool isBlocked() const { return blocked; }
+
+    void setBlocked(bool val) { blocked = val; }
+
     friend class Riscv;
+
+    friend class Sem;
 
 //    void *operator new(size_t size){return mem_alloc(size);}
 
@@ -40,18 +44,21 @@ private:
 
     explicit TCB(Body body, void *arg, uint64 timeSlice) :
             body(body),
-            stack(body != nullptr ? new uint64[1024] : nullptr),
+            stack(body != nullptr ? new uint64[DEFAULT_STACK_SIZE] : nullptr),
             context({(uint64) &threadWrapper,
-                     body != nullptr ? (uint64) &stack[1024] : 0}),
+                     body != nullptr ? (uint64) &stack[DEFAULT_STACK_SIZE] : 0}),
             timeSlice(timeSlice),
             arg(arg),
-            finished(false) {
+            finished(false),
+            blocked(false) {
         if (body != nullptr) Scheduler::put(this);
     }
 
     static void dispatch();
 
     static void contextSwitch(Context *oldContext, Context *runningContext);
+
+    static void threadWrapper();
 
     Body body;
     uint64 *stack;
@@ -61,6 +68,7 @@ private:
     bool finished;
     static uint64 timeSliceCounter;
     static TCB *running;
+    bool blocked;
 };
 
 #endif
