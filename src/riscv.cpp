@@ -123,22 +123,11 @@ void Riscv::handleSupervisorTrap() {
                 __putc(chr);
                 break;
             }
-            case GOTO_USER: {
-                w_sstatus(sstatus);
-                mc_sstatus(SSTATUS_SPP);
-                w_sepc(sepc);
-                break;
-            }
-            case GOTO_SYSTEM: {
-                w_sstatus(sstatus);
-                ms_sstatus(SSTATUS_SPP);
-                asm volatile("csrw sepc, %0" : : "r" (sepc));
-                break;
-            }
             default:
                 break;
         }
 
+//        TCB::dispatch();
         w_sstatus(sstatus);
         w_sepc(sepc);
     } else if (scause == 0x8000000000000001UL) {

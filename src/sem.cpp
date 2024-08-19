@@ -6,6 +6,7 @@ void Sem::block() {
     numOfBlocked++;
     TCB::getRunning()->setBlocked(true);
     blocked.addLast(TCB::getRunning());
+//    TCB::dispatch();
     thread_dispatch();
 }
 
@@ -17,7 +18,7 @@ void Sem::unblock() {
 }
 
 int Sem::wait() {
-    if(--val < 0) block();
+    if (--val < 0) block();
     if(!closed) return 0;
     else if(numOfBlocked == 0) return 0;
     else{
@@ -27,8 +28,8 @@ int Sem::wait() {
 }
 
 int Sem::signal() {
-    if(closed) return -1;
-    if(++val <= 0) unblock();
+    if (closed) return -1;
+    if (++val <= 0) unblock();
     return 0;
 }
 
@@ -37,10 +38,10 @@ Sem *Sem::open(int init) {
 }
 
 int Sem::close() {
-    if(closed) return -1;
+    if (closed) return -1;
     closed = true;
 
-    if(blocked.peekFirst() != nullptr) {
+    if (blocked.peekFirst() != nullptr) {
         while (blocked.peekFirst()) {
             blocked.peekFirst()->setBlocked(false);
             Scheduler::put(blocked.peekFirst());

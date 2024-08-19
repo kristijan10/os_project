@@ -20,15 +20,15 @@ int main() {
 
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
-    gotoUser();
+//    gotoUser();
 
-    thread_t user;
-    thread_create(&user, userMainWrapper, nullptr);
+//    thread_t user;
+//    thread_create(&user, userMainWrapper, nullptr);
 
-//    threads[1] = TCB::createThread(userMainWrapper, nullptr);
+    threads[1] = TCB::createThread(userMainWrapper, nullptr);
 
-    while (!user->isFinished()) thread_dispatch();
+    while (!threads[1]->isFinished()) thread_dispatch();
 
-    delete user;
+    delete threads[1];
     return 0;
 }

@@ -9,3 +9,7 @@ TCB *Scheduler::get(){
 void Scheduler::put(TCB *tcb) {
     readyThreadQueue.addLast(tcb);
 }
+
+void Scheduler::putFirst(TCB *tcb){
+    readyThreadQueue.addFirst(tcb);
+}

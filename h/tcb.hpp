@@ -57,9 +57,6 @@ private:
             finished(false),
             blocked(false),
             pid(PID++) {
-//        printStr("Otvorena nit:");
-//        printInteger(pid);
-//        printStr("\n");
         if (body != nullptr) Scheduler::put(this);
     }
 

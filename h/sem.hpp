@@ -24,11 +24,7 @@ protected:
     void unblock();
 
 private:
-    explicit Sem(int init = 1) : val(init), closed(false), numOfBlocked(0) {
-//        printStr("Otvoren semafor\n");
-//        printInteger(sid);
-//        printStr("\n");
-    }
+    explicit Sem(int init = 1) : val(init), closed(false), numOfBlocked(0) {}
 
     int val;
     List<TCB> blocked;
