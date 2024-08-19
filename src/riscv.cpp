@@ -82,14 +82,13 @@ void Riscv::handleSupervisorTrap() {
                 int ret = 0;
                 if(*handle == nullptr) ret = -21;
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
-
                 break;
             }
             case SEM_SIGNAL: {
                 auto handle = (Sem*) a1;
 
                 int ret = -24;
-                if(handle) ret = handle->close();
+                if(handle) ret = handle->signal();
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
@@ -112,25 +111,36 @@ void Riscv::handleSupervisorTrap() {
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
-//            case CONSOLE_GETC: {
-//                char c = __getc();
-//
-//                asm volatile("sd %0, 8*10(s0)" : : "r" (c));
-//                break;
-//            }
-//            case CONSOLE_PUTC: {
-//                char chr;
-//                asm volatile("mv %0, a1" : "=r" (chr));
-//
-//                __putc(chr);
-//                break;
-//            }
+            case CONSOLE_GETC: {
+                char c = __getc();
+
+                asm volatile("sd %0, 8*10(s0)" : : "r" (c));
+                break;
+            }
+            case CONSOLE_PUTC: {
+                auto chr = (char) a1;
+
+                __putc(chr);
+                break;
+            }
+            case GOTO_USER: {
+                w_sstatus(sstatus);
+                mc_sstatus(SSTATUS_SPP);
+                w_sepc(sepc);
+                break;
+            }
+            case GOTO_SYSTEM: {
+                w_sstatus(sstatus);
+                ms_sstatus(SSTATUS_SPP);
+                asm volatile("csrw sepc, %0" : : "r" (sepc));
+                break;
+            }
             default:
                 break;
         }
 
-        w_sepc(sepc);
         w_sstatus(sstatus);
+        w_sepc(sepc);
     } else if (scause == 0x8000000000000001UL) {
         // timer interrupt
         TCB::timeSliceCounter++;
@@ -142,8 +152,8 @@ void Riscv::handleSupervisorTrap() {
             TCB::timeSliceCounter = 0;
             TCB::dispatch();
 
-            w_sepc(sepc);
             w_sstatus(sstatus);
+            w_sepc(sepc);
         }
 
         mc_sip(SIP_SSIP);
@@ -162,6 +172,4 @@ void Riscv::handleSupervisorTrap() {
         printInteger(r_stval());
         printStr("\n-----------\n");
     }
-
-    setMode(true);
 }

@@ -116,20 +116,32 @@ int time_sleep(time_t time) { return 0; }
 
 // ============= KONZOLA =============
 char getc() {
-//    __asm__ volatile("mv a0, %0" : : "r"(CONSOLE_GETC));
-//
-//    __asm__ volatile("ecall");
-//
-//    char c;
-//    __asm__ volatile("mv %0, a0" : "=r"(c));
-//    return c;
-    return __getc();
+    __asm__ volatile("mv a0, %0" : : "r"(CONSOLE_GETC));
+
+    __asm__ volatile("ecall");
+
+    char c;
+    __asm__ volatile("mv %0, a0" : "=r"(c));
+    return c;
+//    return __getc();
 }
 
 void putc(char c) {
-//    __asm__ volatile("mv a1, %0" : : "r"(c));
-//    __asm__ volatile("mv a0, %0" : : "r"(CONSOLE_PUTC));
-//
-//    __asm__ volatile("ecall");
-    __putc(c);
+    __asm__ volatile("mv a1, %0" : : "r"(c));
+    __asm__ volatile("mv a0, %0" : : "r"(CONSOLE_PUTC));
+
+    __asm__ volatile("ecall");
+//    __putc(c);
+}
+
+void gotoUser(){
+    asm volatile("mv a0, %0" : : "r" (GOTO_USER));
+
+    asm volatile("ecall");
+}
+
+void gotoSystem(){
+    asm volatile("mv a0, %0" : : "r" (GOTO_SYSTEM));
+
+    asm volatile("ecall");
 }

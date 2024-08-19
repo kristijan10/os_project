@@ -2,6 +2,7 @@
 #include "../h/print.hpp"
 #include "../h/riscv.hpp"
 #include "../h/syscall_c.h"
+#include "../h/sem.hpp"
 
 extern void userMain();
 
@@ -19,14 +20,15 @@ int main() {
 
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
-    threads[1] = TCB::createThread(userMainWrapper, nullptr);
+    gotoUser();
 
-    while (!threads[1]->isFinished()) thread_dispatch();
+    thread_t user;
+    thread_create(&user, userMainWrapper, nullptr);
 
-    printStr("Finished!\n");
+//    threads[1] = TCB::createThread(userMainWrapper, nullptr);
 
-    for(auto thread : threads)
-        delete thread;
+    while (!user->isFinished()) thread_dispatch();
 
+    delete user;
     return 0;
 }

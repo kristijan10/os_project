@@ -3,6 +3,9 @@
 
 #include "../lib/hw.h"
 #include "scheduler.hpp"
+#include "print.hpp"
+
+static int PID = 0;
 
 class TCB {
 public:
@@ -25,6 +28,8 @@ public:
     bool isBlocked() const { return blocked; }
 
     void setBlocked(bool val) { blocked = val; }
+
+    int getPid() const {return pid;}
 
     friend class Riscv;
 
@@ -50,7 +55,11 @@ private:
             timeSlice(timeSlice),
             arg(arg),
             finished(false),
-            blocked(false) {
+            blocked(false),
+            pid(PID++) {
+//        printStr("Otvorena nit:");
+//        printInteger(pid);
+//        printStr("\n");
         if (body != nullptr) Scheduler::put(this);
     }
 
@@ -69,6 +78,7 @@ private:
     static uint64 timeSliceCounter;
     static TCB *running;
     bool blocked;
+    int pid;
 };
 
 #endif

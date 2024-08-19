@@ -4,8 +4,8 @@
 #include "../h/syscall_c.h"
 #include "../h/print.hpp"
 
-extern "C" void pushRegisters();
-extern "C" void popRegisters();
+//extern "C" void pushRegisters();
+//extern "C" void popRegisters();
 
 TCB *TCB::running = nullptr;
 uint64 TCB::timeSliceCounter = 0;
@@ -15,11 +15,9 @@ TCB *TCB::createThread(TCB::Body body, void *arg) {
 }
 
 void TCB::yield() {
-//    pushRegisters();
     asm volatile("li a0, 0x13");
 
     asm volatile("ecall");
-//    popRegisters();
 }
 
 void TCB::dispatch() {
@@ -45,7 +43,8 @@ void TCB::threadWrapper() {
     running->setFinished(true);
 
 //    TCB::yield();
-    thread_dispatch();
+    thread_exit();
+//    thread_dispatch();
 }
 
 //void *TCB::operator new(size_t size) {
