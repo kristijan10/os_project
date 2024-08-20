@@ -1,23 +1,25 @@
 #include "../h/syscall_c.h"
 #include "../lib/console.h"
 #include "../lib/mem.h"
+#include "../h/riscv.hpp"
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
-//    size_t newSize;
-//    if (size % MEM_BLOCK_SIZE != 0) {
-//        newSize = ((size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
-//    } else newSize = size;
-//
-//    asm volatile("mv a1, %0" : : "r" (newSize));
-//    asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
-//
-//    asm volatile("ecall");
-//
-//    void *ptr;
-//    asm volatile("mv %0, a0" : "=r" (ptr));
-//    return ptr;
-    return __mem_alloc(size);
+    if(Riscv::userMode) {
+        size_t newSize;
+        if (size % MEM_BLOCK_SIZE != 0) {
+            newSize = ((size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
+        } else newSize = size;
+
+        asm volatile("mv a1, %0" : : "r" (newSize));
+        asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
+
+        asm volatile("ecall");
+
+        void *ptr;
+        asm volatile("mv %0, a0" : "=r" (ptr));
+        return ptr;
+    } else __mem_alloc(size);
 }
 
 int mem_free(void *ptr) {
