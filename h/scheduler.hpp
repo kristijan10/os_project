@@ -9,7 +9,6 @@ class Scheduler{
 public:
     static TCB *get();
     static void put(TCB *tcb);
-    static void putFirst(TCB *tcb);
 
 private:
     static List<TCB> readyThreadQueue;

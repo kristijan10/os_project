@@ -4,6 +4,7 @@
 #include "../lib/hw.h"
 #include "scheduler.hpp"
 #include "print.hpp"
+#include "allocator.hpp"
 
 static int PID = 0;
 
@@ -29,7 +30,7 @@ public:
 
     void setBlocked(bool val) { blocked = val; }
 
-    int getPid() const {return pid;}
+    int getPid() const { return pid; }
 
     friend class Riscv;
 
@@ -39,7 +40,7 @@ public:
 
 //    void operator delete(void *ptr){ mem_free(ptr);}
 
-    ~TCB() { delete[] stack; }
+    ~TCB() { Allocator::getInstance().mem_free(stack); }
 
 private:
     struct Context {

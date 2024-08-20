@@ -1,15 +1,11 @@
 #include "../h/syscall_c.h"
-#include "../lib/console.h"
-#include "../lib/mem.h"
 #include "../h/riscv.hpp"
+#include "../h/allocator.hpp"
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
-    if(Riscv::userMode) {
-        size_t newSize;
-        if (size % MEM_BLOCK_SIZE != 0) {
-            newSize = ((size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
-        } else newSize = size;
+//    if (Riscv::userMode) {
+        size_t newSize = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 
         asm volatile("mv a1, %0" : : "r" (newSize));
         asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
@@ -19,19 +15,20 @@ void *mem_alloc(size_t size) {
         void *ptr;
         asm volatile("mv %0, a0" : "=r" (ptr));
         return ptr;
-    } else __mem_alloc(size);
+//    } else return Allocator::getInstance().mem_alloc(size);
 }
 
 int mem_free(void *ptr) {
-//    __asm__ volatile("mv a1, %0" : : "r"(ptr));
-//    __asm__ volatile("mv a0, %0" : : "r"(MEM_FREE));
-//
-//    __asm__ volatile("ecall");
-//
-//    int retval;
-//    __asm__ volatile("mv %0, a0" : "=r"(retval));
-//    return retval;
-    return __mem_free(ptr);
+//    if (Riscv::userMode) {
+        asm volatile("mv a1, %0" : : "r"(ptr));
+        asm volatile("mv a0, %0" : : "r"(MEM_FREE));
+
+        asm volatile("ecall");
+
+        int retval;
+        asm volatile("mv %0, a0" : "=r"(retval));
+        return retval;
+//    } else return Allocator::getInstance().mem_free(ptr);
 }
 
 // ============= NITI =============

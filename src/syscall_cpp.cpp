@@ -3,22 +3,9 @@
 #include "../h/print.hpp"
 
 // ============= MEMORIJA =============
-void *operator new(size_t size) {
-//    void *ptr = mem_alloc(size);
-//    printStr("_cpp: new:");
-//    printInteger((uint64) ptr);
-//    printStr("\n");
-//
-    return mem_alloc(size);
-}
+void *operator new(size_t size) { return mem_alloc(size); }
 
-void operator delete(void *ptr) noexcept {
-//    printStr("_cpp: delete:");
-//    printInteger((uint64) ptr);
-//    printStr("\n");
-//
-    mem_free(ptr);
-}
+void operator delete(void *ptr) noexcept { mem_free(ptr); }
 
 void *operator new[](size_t size) { return mem_alloc(size); }
 

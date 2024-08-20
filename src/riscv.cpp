@@ -1,11 +1,8 @@
 #include "../h/riscv.hpp"
 #include "../lib/console.h"
 #include "../h/tcb.hpp"
-#include "../h/codes.h"
-#include "../h/print.hpp"
-#include "../lib/mem.h"
-#include "../h/syscall_c.h"
 #include "../h/sem.hpp"
+#include "../h/allocator.hpp"
 
 bool Riscv::userMode = false;
 
@@ -33,22 +30,18 @@ void Riscv::handleSupervisorTrap() {
         uint64 volatile sstatus = r_sstatus();
 
         switch (a0) {
-//            case MEM_ALLOC: {
-//                size_t size;
-//                asm volatile("mv %0, a1" : "=r" (size));
-//
-//                void *ptr = __mem_alloc(size);
-//                asm volatile("sd %0, 8*10(fp)" : : "r" (ptr));
-//                break;
-//            }
-//            case MEM_FREE: {
-//                void *ptr;
-//                asm volatile("mv %0, a1" : "=r" (ptr));
-//
-//                int ret = __mem_free(ptr);
-//                asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
-//                break;
-//            }
+            case MEM_ALLOC: {
+                void *ret = Allocator::getInstance().mem_alloc((size_t) a1);
+
+                asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
+                break;
+            }
+            case MEM_FREE: {
+                int ret = Allocator::getInstance().mem_free((void *) a1);
+
+                asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
+                break;
+            }
             case THREAD_CREATE: {
                 auto handle = (TCB **) a1;
                 auto body = (TCB::Body) a2;

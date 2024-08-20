@@ -3,6 +3,7 @@
 #include "../h/riscv.hpp"
 #include "../h/syscall_c.h"
 #include "../h/sem.hpp"
+#include "../h/allocator.hpp"
 
 extern void userMain();
 
