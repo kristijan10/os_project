@@ -72,11 +72,10 @@ public:
 
     static void setMode(bool mode){userMode=mode;};
 
+    static bool userMode;
 private:
     // supervisor trap handler
     static void handleSupervisorTrap();
-
-    static bool userMode;
 };
 
 

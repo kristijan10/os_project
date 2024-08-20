@@ -10,14 +10,14 @@
 bool Riscv::userMode = false;
 
 void Riscv::popSppSpie() {
-//    if(userMode) mc_sstatus(SSTATUS_SPP);
-//    else ms_sstatus(SSTATUS_SPP);
+    mc_sstatus(SSTATUS_SPP);
 
     asm volatile("csrw sepc, ra");
     asm volatile("sret");
 }
 
 void Riscv::handleSupervisorTrap() {
+    userMode = false;
     uint64 scause = r_scause();
 
     uint64 volatile a0, a1, a2, a3;
@@ -74,30 +74,30 @@ void Riscv::handleSupervisorTrap() {
                 break;
             }
             case SEM_OPEN: {
-                auto handle = (Sem**) a1;
+                auto handle = (Sem **) a1;
                 auto init = (int) a2;
 
                 *handle = Sem::open(init);
 
                 int ret = 0;
-                if(*handle == nullptr) ret = -21;
+                if (*handle == nullptr) ret = -21;
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
             case SEM_SIGNAL: {
-                auto handle = (Sem*) a1;
+                auto handle = (Sem *) a1;
 
                 int ret = -24;
-                if(handle) ret = handle->signal();
+                if (handle) ret = handle->signal();
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
             case SEM_WAIT: {
-                auto handle = (Sem*) a1;
+                auto handle = (Sem *) a1;
 
                 int ret = -23;
-                if(handle) ret = handle->wait();
+                if (handle) ret = handle->wait();
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
@@ -106,7 +106,7 @@ void Riscv::handleSupervisorTrap() {
                 auto handle = (Sem *) a1;
 
                 int ret = -22;
-                if(handle) ret = handle->close();
+                if (handle) ret = handle->close();
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
@@ -161,4 +161,6 @@ void Riscv::handleSupervisorTrap() {
         printInteger(r_stval());
         printStr("\n-----------\n");
     }
+
+    userMode = true;
 }
