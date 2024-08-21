@@ -2,21 +2,30 @@
 #define mem_allocator
 
 #include "../lib/hw.h"
+
 class Allocator {
 public:
-    static Allocator& getInstance();
+    static Allocator &getInstance();
+
     void *mem_alloc(size_t sz);
-    int mem_free(void* adr);
+
+    int mem_free(void *adr);
 
 private:
-    struct FreeMem{
-        FreeMem* next;
-        FreeMem* prev;
+    struct FreeMem {
+        FreeMem *next;
+        FreeMem *prev;
         size_t size;
     };
 
-    FreeMem *head=nullptr;
-    void tryToJoin(FreeMem* cur);
+//    Allocator() : allocator(nullptr) {}
+
+    FreeMem *fmem_head = nullptr;
+//    static Allocator *allocator;
+
+    static void tryToJoin(FreeMem *cur);
+
+    void init();
 };
 
 #endif
