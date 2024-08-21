@@ -4,7 +4,7 @@
 #include "../h/sem.hpp"
 #include "../h/allocator.hpp"
 
-bool Riscv::userMode = false;
+//bool Riscv::userMode = false;
 
 void Riscv::popSppSpie() {
     mc_sstatus(SSTATUS_SPP);
@@ -14,7 +14,6 @@ void Riscv::popSppSpie() {
 }
 
 void Riscv::handleSupervisorTrap() {
-    userMode = false;
     uint64 scause = r_scause();
 
     uint64 volatile a0, a1, a2, a3;
@@ -104,6 +103,15 @@ void Riscv::handleSupervisorTrap() {
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
+            case SEM_TRYWAIT: {
+                auto handle = (Sem *) a1;
+
+                int ret = -26;
+                if(handle) ret = handle->trywait();
+
+                asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
+                break;
+            }
             case CONSOLE_GETC: {
                 char c = __getc();
 
@@ -154,6 +162,4 @@ void Riscv::handleSupervisorTrap() {
         printInteger(r_stval());
         printStr("\n-----------\n");
     }
-
-    userMode = true;
 }

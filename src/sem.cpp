@@ -6,7 +6,6 @@ void Sem::block() {
     numOfBlocked++;
     TCB::getRunning()->setBlocked(true);
     blocked.addLast(TCB::getRunning());
-//    TCB::dispatch();
     thread_dispatch();
 }
 
@@ -19,12 +18,16 @@ void Sem::unblock() {
 
 int Sem::wait() {
     if (--val < 0) block();
-    if(!closed) return 0;
-    else if(numOfBlocked == 0) return 0;
-    else{
+    if (!closed || numOfBlocked == 0) return 0;
+    else {
         numOfBlocked--;
         return -1;
     }
+}
+
+int Sem::trywait() {
+    if (val < 0) return 0;
+    else return 1;
 }
 
 int Sem::signal() {

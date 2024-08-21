@@ -70,9 +70,9 @@ public:
     // supervisor trap
     static void supervisorTrap();
 
-    static void setMode(bool mode){userMode=mode;};
+//    static void setMode(bool mode){userMode=mode;};
 
-    static bool userMode;
+//    static bool userMode;
 private:
     // supervisor trap handler
     static void handleSupervisorTrap();

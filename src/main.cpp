@@ -21,11 +21,6 @@ int main() {
 
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
-//    gotoUser();
-
-//    thread_t user;
-//    thread_create(&user, userMainWrapper, nullptr);
-
     threads[1] = TCB::createThread(userMainWrapper, nullptr);
 
     while (!threads[1]->isFinished()) thread_dispatch();
