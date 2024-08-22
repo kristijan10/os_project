@@ -4,31 +4,27 @@
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
-//    if (Riscv::userMode) {
-        size_t newSize = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+    size_t newSize = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 
-        asm volatile("mv a1, %0" : : "r" (newSize));
-        asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
+    asm volatile("mv a1, %0" : : "r" (newSize));
+    asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
 
-        asm volatile("ecall");
+    asm volatile("ecall");
 
-        void *ptr;
-        asm volatile("mv %0, a0" : "=r" (ptr));
-        return ptr;
-//    } else return Allocator::getInstance().mem_alloc(size);
+    void *ptr;
+    asm volatile("mv %0, a0" : "=r" (ptr));
+    return ptr;
 }
 
 int mem_free(void *ptr) {
-//    if (Riscv::userMode) {
-        asm volatile("mv a1, %0" : : "r"(ptr));
-        asm volatile("mv a0, %0" : : "r"(MEM_FREE));
+    asm volatile("mv a1, %0" : : "r"(ptr));
+    asm volatile("mv a0, %0" : : "r"(MEM_FREE));
 
-        asm volatile("ecall");
+    asm volatile("ecall");
 
-        int retval;
-        asm volatile("mv %0, a0" : "=r"(retval));
-        return retval;
-//    } else return Allocator::getInstance().mem_free(ptr);
+    int retval;
+    asm volatile("mv %0, a0" : "=r"(retval));
+    return retval;
 }
 
 // ============= NITI =============
@@ -131,7 +127,6 @@ char getc() {
     char c;
     asm volatile("mv %0, a0" : "=r"(c));
     return c;
-//    return __getc();
 }
 
 void putc(char c) {
@@ -139,5 +134,4 @@ void putc(char c) {
     asm volatile("mv a0, %0" : : "r"(CONSOLE_PUTC));
 
     asm volatile("ecall");
-//    __putc(c);
 }

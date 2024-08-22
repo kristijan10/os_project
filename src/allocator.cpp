@@ -1,5 +1,7 @@
 #include "../h/allocator.hpp"
 
+Allocator Allocator::allocator;
+
 void Allocator::init() {
     if (!fmem_head) {
         fmem_head = (FreeMem *) ((uint64 *) HEAP_START_ADDR);
@@ -47,8 +49,7 @@ void *Allocator::mem_alloc(size_t size) {
 }
 
 Allocator &Allocator::getInstance() {
-    static Allocator alloc;
-    return alloc;
+    return allocator;
 }
 
 void Allocator::tryToJoin(FreeMem *cur) {

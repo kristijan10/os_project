@@ -18,10 +18,8 @@ private:
         size_t size;
     };
 
-//    Allocator() : allocator(nullptr) {}
-
     FreeMem *fmem_head = nullptr;
-//    static Allocator *allocator;
+    static Allocator allocator;
 
     static void tryToJoin(FreeMem *cur);
 
