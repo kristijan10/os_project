@@ -1,15 +1,13 @@
-#ifndef list
-#define list
+#ifndef list_hpp
+#define list_hpp
 
 #include "syscall_c.h"
-#include "../lib/mem.h"
+#include "print.hpp"
 
 template<typename T>
-class List
-{
+class List {
 private:
-    struct Elem
-    {
+    struct Elem {
         T *data;
         Elem *next;
 
@@ -17,6 +15,7 @@ private:
     };
 
     Elem *head, *tail;
+    Elem *iter_curr = head, *iter_prev = nullptr;
 
 public:
     List() : head(0), tail(0) {}
@@ -25,28 +24,23 @@ public:
 
     List<T> &operator=(const List<T> &) = delete;
 
-    void addFirst(T *data)
-    {
+    void addFirst(T *data) {
         Elem *elem = new Elem(data, head);
         head = elem;
         if (!tail) { tail = head; }
     }
 
-    void addLast(T *data)
-    {
+    void addLast(T *data) {
         Elem *elem = new Elem(data, 0);
-        if (tail)
-        {
+        if (tail) {
             tail->next = elem;
             tail = elem;
-        } else
-        {
+        } else {
             head = tail = elem;
         }
     }
 
-    T *removeFirst()
-    {
+    T *removeFirst() {
         if (!head) { return 0; }
 
         Elem *elem = head;
@@ -58,19 +52,16 @@ public:
         return ret;
     }
 
-    T *peekFirst()
-    {
+    T *peekFirst() {
         if (!head) { return 0; }
         return head->data;
     }
 
-    T *removeLast()
-    {
+    T *removeLast() {
         if (!head) { return 0; }
 
         Elem *prev = 0;
-        for (Elem *curr = head; curr && curr != tail; curr = curr->next)
-        {
+        for (Elem *curr = head; curr && curr != tail; curr = curr->next) {
             prev = curr;
         }
 
@@ -84,22 +75,71 @@ public:
         return ret;
     }
 
-    T *peekLast()
-    {
+    T *peekLast() {
         if (!tail) { return 0; }
         return tail->data;
     }
 
-    T *get(T* t)
-    {
+    T *get(T *t) {
         if (!head) { return 0; }
-        Elem* cur=head;
+        Elem *cur = head;
         while (cur && cur != tail) {
-            if(cur->data==t) return cur->data;
-            cur=cur->next;
+            if (cur->data == t) return cur->data;
+            cur = cur->next;
         }
         return 0;
+    }
+
+    T *iter_get_curr() {
+        if(iter_curr) return iter_curr->data;
+        return nullptr;
+    }
+
+    void iter_next(){
+        if(!iter_curr) return;
+
+        iter_prev = iter_curr;
+        iter_curr = iter_curr->next;
+    }
+
+    void iter_insert_before(T *t) {
+        Elem *elem = new Elem(t, 0);
+
+        if (iter_prev) {
+            iter_prev->next = elem;
+            elem->next = iter_curr;
+            iter_prev = elem;
+        } else if (iter_curr) {
+            head = elem;
+            elem->next = iter_curr;
+            iter_prev = elem;
+        } else {
+            head = elem;
+            iter_curr = head;
+            tail = head;
+        }
+    }
+
+    void iter_insert_after(T *data) {
+        Elem *elem = new Elem(data, 0);
+        Elem *next = iter_curr ? iter_curr->next : nullptr;
+
+        if (next) {
+            iter_curr->next = elem;
+            elem->next = next;
+        } else if (iter_curr) {
+            iter_curr->next = elem;
+            tail = elem;
+        } else {
+            head = tail = iter_curr = elem;
+        }
+    }
+
+    void iter_reset() {
+        iter_curr = head;
+        iter_prev = nullptr;
     }
 };
 
 #endif
+

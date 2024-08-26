@@ -1,5 +1,5 @@
-#ifndef print
-#define print
+#ifndef print_hpp
+#define print_hpp
 
 #include "../lib/hw.h"
 

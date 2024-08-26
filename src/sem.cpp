@@ -6,14 +6,16 @@ void Sem::block() {
     numOfBlocked++;
     TCB::getRunning()->setBlocked(true);
     blocked.addLast(TCB::getRunning());
-    thread_dispatch();
+    TCB::dispatch();
 }
 
 void Sem::unblock() {
     numOfBlocked--;
     TCB *temp = blocked.removeFirst();
     temp->setBlocked(false);
+//    if(time > 0) izvaditi iz sleepQueue, time = 0;
     Scheduler::put(temp);
+    TCB::dispatch();
 }
 
 int Sem::wait() {

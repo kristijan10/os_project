@@ -1,5 +1,5 @@
-#ifndef syscall_c
-#define syscall_c
+#ifndef syscall_c_hpp
+#define syscall_c_hpp
 
 #include "../lib/hw.h"
 #include "codes.h"
@@ -47,8 +47,8 @@ char getc();
 
 void putc(char c);
 
-void gotoSystem();
-
-void gotoUser();
-
 #endif
+
+// i blokiram i stavim da spavam
+// ako prodje vreme samo u skeduler
+// ako je iskoriscen signal

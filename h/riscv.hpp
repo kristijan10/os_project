@@ -1,5 +1,5 @@
-#ifndef riscv
-#define riscv
+#ifndef riscv_hpp
+#define riscv_hpp
 
 #include "../lib/hw.h"
 
@@ -72,7 +72,7 @@ public:
 
 //    static void setMode(bool mode){userMode=mode;};
 
-//    static bool userMode;
+    static bool userMode;
 private:
     // supervisor trap handler
     static void handleSupervisorTrap();

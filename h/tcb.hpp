@@ -1,12 +1,10 @@
-#ifndef tcb
-#define tcb
+#ifndef tcb_hpp
+#define tcb_hpp
 
-#include "../lib/hw.h"
 #include "scheduler.hpp"
-#include "print.hpp"
 #include "allocator.hpp"
 
-static int PID = 0;
+static int TID = 0;
 
 class TCB {
 public:
@@ -30,17 +28,17 @@ public:
 
     void setBlocked(bool val) { blocked = val; }
 
-    int getPid() const { return pid; }
+    int getThreadId() const { return tid; }
+
+    void setTime(int t) { this->time = t; }
+
+    uint64 getTime() const { return time; }
 
     friend class Riscv;
 
     friend class Sem;
 
-//    void *operator new(size_t size){return mem_alloc(size);}
-
-//    void operator delete(void *ptr){ mem_free(ptr);}
-
-    ~TCB() { Allocator::getInstance().mem_free(stack); }
+    ~TCB() { delete[] stack; }
 
 private:
     struct Context {
@@ -57,7 +55,8 @@ private:
             arg(arg),
             finished(false),
             blocked(false),
-            pid(PID++) {
+            tid(TID++),
+            time(0) {
         if (body != nullptr) Scheduler::put(this);
     }
 
@@ -76,7 +75,8 @@ private:
     static uint64 timeSliceCounter;
     static TCB *running;
     bool blocked;
-    int pid;
+    int tid;
+    int time;
 };
 
 #endif

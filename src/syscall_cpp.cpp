@@ -1,15 +1,29 @@
 #include "../h/syscall_cpp.hpp"
-#include "../lib/mem.h"
+//#include "../lib/mem.h"
 #include "../h/print.hpp"
+#include "../h/allocator.hpp"
+#include "../h/riscv.hpp"
 
 // ============= MEMORIJA =============
-void *operator new(size_t size) { return mem_alloc(size); }
+void *operator new(size_t size) {
+    if (!Riscv::userMode) return Allocator::getInstance().mem_alloc(size);
+    return mem_alloc(size);
+}
 
-void operator delete(void *ptr) noexcept { mem_free(ptr); }
+void operator delete(void *ptr) noexcept {
+    if (!Riscv::userMode) Allocator::getInstance().mem_free(ptr);
+    else mem_free(ptr);
+}
 
-void *operator new[](size_t size) { return mem_alloc(size); }
+void *operator new[](size_t size) {
+    if (!Riscv::userMode) return Allocator::getInstance().mem_alloc(size);
+    return mem_alloc(size);
+}
 
-void operator delete[](void *ptr) noexcept { mem_free(ptr); }
+void operator delete[](void *ptr) noexcept {
+    if (!Riscv::userMode) Allocator::getInstance().mem_free(ptr);
+    else mem_free(ptr);
+}
 
 // ============= NITI =============
 Thread::Thread(void (*body)(void *), void *arg) :
@@ -56,6 +70,18 @@ int Semaphore::tryWait() { return sem_trywait(myHandle); }
 PeriodicThread::PeriodicThread(time_t period) { this->period = period; }
 
 void PeriodicThread::terminate() { period = 0; }
+
+void PeriodicThread::run() {
+    while (period) {
+        periodicActivation();
+
+        if (!period) break;
+
+        sleep(period);
+    }
+
+    thread_exit();
+}
 
 // ============= KONZOLA =============
 char Console::getc() { return ::getc(); }

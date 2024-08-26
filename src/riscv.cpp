@@ -4,7 +4,7 @@
 #include "../h/sem.hpp"
 #include "../h/allocator.hpp"
 
-//bool Riscv::userMode = false;
+bool Riscv::userMode = false;
 
 void Riscv::popSppSpie() {
     mc_sstatus(SSTATUS_SPP);
@@ -14,6 +14,7 @@ void Riscv::popSppSpie() {
 }
 
 void Riscv::handleSupervisorTrap() {
+    userMode = false;
     uint64 scause = r_scause();
 
     uint64 volatile a0, a1, a2, a3;
@@ -107,9 +108,27 @@ void Riscv::handleSupervisorTrap() {
                 auto handle = (Sem *) a1;
 
                 int ret = -26;
-                if(handle) ret = handle->trywait();
+                if (handle) ret = handle->trywait();
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
+                break;
+            }
+            case SEM_TIMEDWAIT: {
+                auto handle = (Sem *) a1;
+
+                int ret = -26;
+                if (handle) ret = handle->trywait();
+                // dal se probudio preko timer ili preko
+
+                asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
+                break;
+            }
+            case TIME_SLEEP: {
+                auto t = (uint64) a1;
+
+                TCB::running->setTime(t);
+                TCB::timeSliceCounter = 0;
+                TCB::dispatch();
                 break;
             }
             case CONSOLE_GETC: {
@@ -132,24 +151,25 @@ void Riscv::handleSupervisorTrap() {
         w_sstatus(sstatus);
         w_sepc(sepc);
     } else if (scause == 0x8000000000000001UL) {
+        uint64 volatile sepc = r_sepc();
+        uint64 volatile sstatus = r_sstatus();
+
         // timer interrupt
         TCB::timeSliceCounter++;
+        Scheduler::updateSleep();
 
         if (TCB::timeSliceCounter >= TCB::running->getTimeSlice()) {
-            uint64 volatile sepc = r_sepc();
-            uint64 volatile sstatus = r_sstatus();
-
             TCB::timeSliceCounter = 0;
             TCB::dispatch();
-
-            w_sstatus(sstatus);
-            w_sepc(sepc);
         }
 
         mc_sip(SIP_SSIP);
+        w_sstatus(sstatus);
+        w_sepc(sepc);
     } else if (scause == 0x8000000000000009UL) {
-        // console interrupt
+// console interrupt
         console_handler();
+
     } else {
         printStr("-----------\n");
         printStr("SCAUSE: ");
@@ -157,9 +177,14 @@ void Riscv::handleSupervisorTrap() {
         printStr("\n");
         printStr("SEPC: "); // gde se desio prekid
         printInteger(r_sepc());
+
         printStr("\n");
         printStr("STVAL: "); // dodatno objasnjenje interrupt-a
         printInteger(r_stval());
+
         printStr("\n-----------\n");
+        thread_exit();
     }
+
+    userMode = true;
 }

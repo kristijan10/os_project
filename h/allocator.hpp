@@ -1,5 +1,5 @@
-#ifndef mem_allocator
-#define mem_allocator
+#ifndef allocator_hpp
+#define allocator_hpp
 
 #include "../lib/hw.h"
 
