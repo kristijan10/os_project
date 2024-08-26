@@ -20,6 +20,12 @@ int thread_exit();
 
 void thread_dispatch();
 
+// dodatak
+
+//void thread_join(thread_t *handle);
+
+//int thread_handle();
+
 // ============= SEMAFOR =============
 class Sem;
 

@@ -23,6 +23,8 @@ protected:
     Thread();
     virtual void run(){}
 
+//    int getCurrentThreadID();
+
 private:
     thread_t myHandle;
     void (*body)(void *);

@@ -15,7 +15,10 @@ enum OpCode{
     SEM_TRYWAIT = 0x26,
     TIME_SLEEP = 0x31,
     CONSOLE_GETC = 0x41,
-    CONSOLE_PUTC = 0x42
+    CONSOLE_PUTC = 0x42,
+    // dodatak
+    THREAD_JOIN = 0x14,
+    THREAD_HANDLE = 0x15
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "../h/syscall_c.h"
 #include "../h/riscv.hpp"
 #include "../h/allocator.hpp"
+#include "../h/print.hpp"
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
@@ -57,6 +58,25 @@ void thread_dispatch() {
     asm volatile("ecall");
 }
 
+// dodatak
+
+//void thread_join(thread_t *handle){
+//    asm volatile("mv a1, %0" : : "r" (handle));
+//    asm volatile("mv a0, %0" : : "r" (THREAD_JOIN));
+//
+//    asm volatile("ecall");
+//}
+//
+//int thread_handle(){
+//    asm volatile("mv a0, %0" : : "r" (THREAD_HANDLE));
+//
+//    asm volatile("ecall");
+//
+//    int ret;
+//    asm volatile("mv %0, a0" : "=r" (ret));
+//    return ret;
+//}
+
 // ============= SEMAFOR =============
 int sem_open(sem_t *handle, unsigned init) {
     asm volatile("mv a2, %0" : : "r" (init));
@@ -104,9 +124,11 @@ int sem_signal(sem_t handle) {
 }
 
 int sem_timedwait(sem_t id, time_t timeout) {
+    asm volatile("mv a2, %0" : : "r" (timeout));
     asm volatile("mv a1, %0" : : "r" (id));
     asm volatile("mv a0, %0" : : "r" (SEM_TIMEDWAIT));
 
+//    printStr("Spreman za sis poziv\n");
     asm volatile("ecall");
 
     int ret;

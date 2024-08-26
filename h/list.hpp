@@ -90,6 +90,31 @@ public:
         return 0;
     }
 
+    void remove(T *t){
+        if(!head) return;
+
+        Elem *cur = head, *prev = nullptr;
+        while(cur){
+            if(cur->data == t) break;
+            prev = cur;
+            cur = cur->next;
+        }
+
+        if(!cur) return;
+
+        if(!prev){
+            head = cur->next;
+
+            if(!head) tail = nullptr;
+        } else {
+            prev->next = cur->next;
+
+            if(!cur->next) tail = prev;
+        }
+
+        delete cur;
+    }
+
     T *iter_get_curr() {
         if(iter_curr) return iter_curr->data;
         return nullptr;

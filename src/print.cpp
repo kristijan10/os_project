@@ -3,15 +3,15 @@
 #include "../h/riscv.hpp"
 
 void printStr(char const *string) {
-    uint64 sstatus = Riscv::r_sstatus();
-    Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
+//    uint64 sstatus = Riscv::r_sstatus();
+//    Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
 
     while (*string != '\0') {
         __putc(*string);
         string++;
     }
 
-    Riscv::ms_sstatus(sstatus & Riscv::SSTATUS_SIE ? Riscv::SSTATUS_SIE : 0);
+//    Riscv::ms_sstatus(sstatus & Riscv::SSTATUS_SIE ? Riscv::SSTATUS_SIE : 0);
 }
 
 void printInteger(uint64 integer) {

@@ -68,3 +68,11 @@ void Scheduler::updateSleep() {
         }
     }
 }
+
+TCB *Scheduler::findSleep(TCB *tcb){
+    return sleepThreadQueue.get(tcb);
+}
+
+void Scheduler::removeSleep(TCB *tcb) {
+    sleepThreadQueue.remove(tcb);
+}

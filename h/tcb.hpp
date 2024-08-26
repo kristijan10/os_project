@@ -4,7 +4,7 @@
 #include "scheduler.hpp"
 #include "allocator.hpp"
 
-static int TID = 0;
+static int PID = 0;
 
 class TCB {
 public:
@@ -28,8 +28,6 @@ public:
 
     void setBlocked(bool val) { blocked = val; }
 
-    int getThreadId() const { return tid; }
-
     void setTime(int t) { this->time = t; }
 
     uint64 getTime() const { return time; }
@@ -39,6 +37,12 @@ public:
     friend class Sem;
 
     ~TCB() { delete[] stack; }
+
+    // dodatak
+
+//    static void join(TCB *handle);
+
+    int getPid() const { return pid; }
 
 private:
     struct Context {
@@ -55,7 +59,7 @@ private:
             arg(arg),
             finished(false),
             blocked(false),
-            tid(TID++),
+            pid(PID++),
             time(0) {
         if (body != nullptr) Scheduler::put(this);
     }
@@ -75,7 +79,7 @@ private:
     static uint64 timeSliceCounter;
     static TCB *running;
     bool blocked;
-    int tid;
+    int pid;
     int time;
 };
 

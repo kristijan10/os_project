@@ -4,6 +4,8 @@
 #include "../h/syscall_c.h"
 #include "../h/sem.hpp"
 #include "../h/allocator.hpp"
+#include "../h/syscall_cpp.hpp"
+#include "../test/printing.hpp"
 
 extern void userMain();
 

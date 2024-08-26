@@ -40,7 +40,8 @@ int Thread::start() {
     return 0;
 }
 
-void Thread::dispatch() { thread_dispatch(); }
+void Thread::dispatch() {
+    thread_dispatch(); }
 
 int Thread::sleep(time_t time) { return time_sleep(time); }
 
@@ -52,6 +53,10 @@ Thread::Thread() :
 void Thread::wrapper(void *thread) {
     ((Thread *) thread)->run();
 }
+
+//int Thread::getCurrentThreadID() {
+//    return thread_handle();
+//}
 
 // ============= SEMAFOR =============
 Semaphore::Semaphore(unsigned init) : myHandle(nullptr) { sem_open(&myHandle, init); }

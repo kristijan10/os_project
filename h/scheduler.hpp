@@ -2,7 +2,6 @@
 #define scheduler_hpp
 
 #include "list.hpp"
-//#include "tcb.hpp"
 
 class Scheduler{
 public:
@@ -12,6 +11,8 @@ public:
     static TCB *getSleep();
     static void putSleep(TCB *tcb);
     static void updateSleep();
+    static TCB *findSleep(TCB *tcb);
+    static void removeSleep(TCB *tcb);
 
 private:
     static List<TCB> readyThreadQueue;

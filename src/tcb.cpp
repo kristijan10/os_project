@@ -35,3 +35,11 @@ void TCB::threadWrapper() {
     running->setFinished(true);
     thread_exit();
 }
+
+// dodatak
+
+//void TCB::join(TCB *handle) {
+//    while(!handle->isFinished()){
+//        TCB::dispatch();
+//    }
+//}

@@ -114,17 +114,20 @@ void Riscv::handleSupervisorTrap() {
                 break;
             }
             case SEM_TIMEDWAIT: {
+                auto timeout = (time_t) a2;
                 auto handle = (Sem *) a1;
 
-                int ret = -26;
-                if (handle) ret = handle->trywait();
-                // dal se probudio preko timer ili preko
+                int ret = -25;
+                if (handle) ret = handle->timedwait(timeout);
+                printStr("RISCV:");
+                printInteger(ret);
+                printStr("\n");
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
             case TIME_SLEEP: {
-                auto t = (uint64) a1;
+                auto t = (int) a1;
 
                 TCB::running->setTime(t);
                 TCB::timeSliceCounter = 0;
@@ -143,6 +146,19 @@ void Riscv::handleSupervisorTrap() {
                 __putc(chr);
                 break;
             }
+                // dodatak
+//            case THREAD_JOIN: {
+//                auto handle = (TCB *) a1;
+//
+//                TCB::join(handle);
+//                break;
+//            }
+//            case THREAD_HANDLE: {
+//                int thread_id = TCB::getRunning()->getThreadId();
+//
+//                asm volatile("sd %0, 8*10(s0)" : : "r" (thread_id));
+//                break;
+//            }
             default:
                 break;
         }
