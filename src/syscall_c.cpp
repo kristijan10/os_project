@@ -59,6 +59,13 @@ void thread_dispatch() {
     asm volatile("ecall");
 }
 
+void thread_join(thread_t *handle){
+    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
+    asm volatile("mv a0, %0" : : "r" (THREAD_JOIN));
+
+    asm volatile("ecall");
+}
+
 // ============= SEMAFOR =============
 int sem_open(sem_t *handle, unsigned init) {
     asm volatile("mv a2, %0" : : "r" (init));

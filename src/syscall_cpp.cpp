@@ -51,6 +51,8 @@ void Thread::wrapper(void *thread) {
     ((Thread *) thread)->run();
 }
 
+void Thread::join() { if(myHandle) thread_join(&myHandle); }
+
 // ============= SEMAFOR =============
 Semaphore::Semaphore(unsigned init) : myHandle(nullptr) { sem_open(&myHandle, init); }
 

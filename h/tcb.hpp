@@ -63,6 +63,8 @@ private:
 
     static void dispatch();
 
+    static void join(thread_t *handle);
+
     static void contextSwitch(Context *oldContext, Context *runningContext);
 
     static void threadWrapper();

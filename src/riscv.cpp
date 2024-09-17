@@ -66,6 +66,11 @@ void Riscv::handleSupervisorTrap() {
                 TCB::dispatch();
                 break;
             }
+            case THREAD_JOIN: {
+                TCB::join((thread_t *) a1);
+
+                break;
+            }
             case SEM_OPEN: {
                 auto handle = (Sem **) a1;
                 auto init = (int) a2;

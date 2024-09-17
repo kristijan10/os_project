@@ -36,3 +36,7 @@ void TCB::threadWrapper() {
     running->setFinished(true);
     thread_exit();
 }
+
+void TCB::join(thread_t *handle) {
+    while(!(*handle)->isFinished()) dispatch();
+}
