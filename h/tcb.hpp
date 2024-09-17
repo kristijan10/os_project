@@ -1,10 +1,9 @@
-#ifndef tcb
-#define tcb
+#ifndef tcb_hpp
+#define tcb_hpp
 
-#include "../lib/hw.h"
 #include "scheduler.hpp"
-#include "print.hpp"
 #include "allocator.hpp"
+#include "../test/printing.hpp"
 
 static int PID = 0;
 
@@ -30,17 +29,17 @@ public:
 
     void setBlocked(bool val) { blocked = val; }
 
+    void setTime(int t) { this->time = t; }
+
+    int getTime() const { return time; }
+
     int getPid() const { return pid; }
 
     friend class Riscv;
 
     friend class Sem;
 
-//    void *operator new(size_t size){return mem_alloc(size);}
-
-//    void operator delete(void *ptr){ mem_free(ptr);}
-
-    ~TCB() { Allocator::getInstance().mem_free(stack); }
+    ~TCB() { delete[] stack; }
 
 private:
     struct Context {
@@ -57,7 +56,8 @@ private:
             arg(arg),
             finished(false),
             blocked(false),
-            pid(PID++) {
+            pid(PID++),
+            time(0) {
         if (body != nullptr) Scheduler::put(this);
     }
 
@@ -77,6 +77,7 @@ private:
     static TCB *running;
     bool blocked;
     int pid;
+    int time;
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include "../h/sem.hpp"
 #include "../h/allocator.hpp"
 
-//bool Riscv::userMode = false;
+bool Riscv::userMode = false;
 
 void Riscv::popSppSpie() {
     mc_sstatus(SSTATUS_SPP);
@@ -14,7 +14,8 @@ void Riscv::popSppSpie() {
 }
 
 void Riscv::handleSupervisorTrap() {
-    uint64 scause = r_scause();
+    Riscv::userMode = false;
+    uint64 volatile scause = r_scause();
 
     uint64 volatile a0, a1, a2, a3;
     asm volatile("mv %0, a3" : "=r" (a3));
@@ -30,13 +31,13 @@ void Riscv::handleSupervisorTrap() {
 
         switch (a0) {
             case MEM_ALLOC: {
-                void *ret = Allocator::getInstance().mem_alloc((size_t) a1);
+                void *ret = Allocator::mem_alloc((size_t) a1 * MEM_BLOCK_SIZE);
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
             case MEM_FREE: {
-                int ret = Allocator::getInstance().mem_free((void *) a1);
+                int ret = Allocator::mem_free((void *) a1);
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
@@ -112,6 +113,14 @@ void Riscv::handleSupervisorTrap() {
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
+            case TIME_SLEEP: {
+                auto t = (int) a1;
+
+                TCB::running->setTime(t);
+                TCB::timeSliceCounter = 0;
+                TCB::dispatch();
+                break;
+            }
             case CONSOLE_GETC: {
                 char c = __getc();
 
@@ -132,21 +141,21 @@ void Riscv::handleSupervisorTrap() {
         w_sstatus(sstatus);
         w_sepc(sepc);
     } else if (scause == 0x8000000000000001UL) {
+        uint64 volatile sepc = r_sepc();
+        uint64 volatile sstatus = r_sstatus();
+
         // timer interrupt
         TCB::timeSliceCounter++;
+        Scheduler::updateSleep();
 
         if (TCB::timeSliceCounter >= TCB::running->getTimeSlice()) {
-            uint64 volatile sepc = r_sepc();
-            uint64 volatile sstatus = r_sstatus();
-
             TCB::timeSliceCounter = 0;
             TCB::dispatch();
-
-            w_sstatus(sstatus);
-            w_sepc(sepc);
         }
 
         mc_sip(SIP_SSIP);
+        w_sstatus(sstatus);
+        w_sepc(sepc);
     } else if (scause == 0x8000000000000009UL) {
         // console interrupt
         console_handler();
@@ -161,5 +170,8 @@ void Riscv::handleSupervisorTrap() {
         printStr("STVAL: "); // dodatno objasnjenje interrupt-a
         printInteger(r_stval());
         printStr("\n-----------\n");
+        thread_exit();
     }
+
+    Riscv::userMode = true;
 }

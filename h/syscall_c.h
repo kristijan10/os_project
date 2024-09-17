@@ -1,8 +1,9 @@
-#ifndef syscall_c
-#define syscall_c
+#ifndef syscall_c_hpp
+#define syscall_c_hpp
 
 #include "../lib/hw.h"
 #include "codes.h"
+//#include "tcb.hpp"
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size);
@@ -46,9 +47,5 @@ const int EOF = -1;
 char getc();
 
 void putc(char c);
-
-void gotoSystem();
-
-void gotoUser();
 
 #endif

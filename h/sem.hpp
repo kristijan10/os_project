@@ -1,5 +1,5 @@
-#ifndef sem
-#define sem
+#ifndef sem_hpp
+#define sem_hpp
 
 #include "tcb.hpp"
 #include "../h/print.hpp"

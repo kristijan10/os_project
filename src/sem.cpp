@@ -1,12 +1,13 @@
 #include "../h/sem.hpp"
 #include "../h/print.hpp"
 #include "../h/scheduler.hpp"
+#include "../h/list.hpp"
 
 void Sem::block() {
     numOfBlocked++;
     TCB::getRunning()->setBlocked(true);
     blocked.addLast(TCB::getRunning());
-    thread_dispatch();
+    TCB::dispatch();
 }
 
 void Sem::unblock() {
@@ -14,6 +15,7 @@ void Sem::unblock() {
     TCB *temp = blocked.removeFirst();
     temp->setBlocked(false);
     Scheduler::put(temp);
+    TCB::dispatch();
 }
 
 int Sem::wait() {
@@ -54,3 +56,7 @@ int Sem::close() {
 
     return 0;
 }
+
+//void Sem::printBlocked() {
+//    blocked
+//}

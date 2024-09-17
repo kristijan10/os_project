@@ -12,6 +12,8 @@ void userMainWrapper(void *) {
 }
 
 int main() {
+    Allocator::init();
+
     TCB *threads[2];
 
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);

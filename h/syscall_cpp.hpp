@@ -1,5 +1,5 @@
-#ifndef syscall_cpp
-#define syscall_cpp
+#ifndef syscall_cpp_hpp
+#define syscall_cpp_hpp
 
 #include "../lib/hw.h"
 #include "../h/syscall_c.h"
@@ -57,6 +57,7 @@ protected:
 
 private:
     time_t period;
+    void run();
 };
 
 // ============= KONZOLA =============

@@ -1,88 +1,95 @@
 #include "../h/allocator.hpp"
 
+Allocator::FreeMem *Allocator::mem_head;
+
 void Allocator::init() {
-    if (!fmem_head) {
-        fmem_head = (FreeMem *) ((uint64 *) HEAP_START_ADDR);
-        fmem_head->next = nullptr;
-        fmem_head->prev = nullptr;
-        fmem_head->size =
-                ((uint64) ((uint64 *) HEAP_END_ADDR - (uint64 *) HEAP_START_ADDR) - sizeof(Allocator)) / MEM_BLOCK_SIZE;
-    }
+    mem_head = (FreeMem *) HEAP_START_ADDR;
+    mem_head->next = nullptr;
+    mem_head->prev = nullptr;
+    mem_head->size = ((char *) HEAP_START_ADDR - (char *) HEAP_END_ADDR - sizeof(FreeMem));
 }
 
 void *Allocator::mem_alloc(size_t size) {
-    init();
+    if (size <= 0 || !Allocator::mem_head) return nullptr;
 
-    void *tmp = nullptr;
-    for (FreeMem *cur = fmem_head; cur != nullptr; cur = cur->next) {
-        if (cur->size >= size) {
-            tmp = cur;
-            //ako je ostalo manje od velicine bloka izbacujem iz liste
-            if (cur->size - size == 0) {
-                if (cur->prev) cur->prev->next = cur->next;
-                else fmem_head = cur->next;
-                if (cur->next) cur->next->prev = cur->prev;
-                cur->size = size;
-
-                break;
-            }
-
-            //ako je ostalo vise od jednog bloka
-            auto newfrgm = (FreeMem *) ((uint64 *) cur + size * MEM_BLOCK_SIZE);
-
-            if (cur->prev) cur->prev->next = newfrgm;
-            else fmem_head = newfrgm;
-            if (cur->next) cur->next->prev = newfrgm;
-
-            newfrgm->prev = cur->prev;
-            newfrgm->next = cur->next;
-            newfrgm->size = cur->size - size;
-            cur->size = size;
-
-            break;
-        }
+    if (size % MEM_BLOCK_SIZE != 0) {
+        size = ((size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE) * MEM_BLOCK_SIZE;
     }
 
-    return (uint64 *) tmp + sizeof(FreeMem);
-}
+    FreeMem *first_fit = Allocator::mem_head;
+    for (; first_fit; first_fit = first_fit->next) {
+        if (first_fit->size >= size + sizeof(FreeMem)) break;
+    }
 
-Allocator &Allocator::getInstance() {
-    static Allocator alloc;
-    return alloc;
+    if (!first_fit) return nullptr;
+
+    FreeMem *frgm;
+    if (first_fit->size > size + sizeof(FreeMem)) {
+        frgm = (FreeMem *) ((char *) first_fit + size + sizeof(FreeMem));
+        frgm->size = first_fit->size - size - sizeof(FreeMem);
+        first_fit->size = size + sizeof(FreeMem);
+
+        frgm->next = first_fit->next;
+    } else frgm = first_fit->next;
+
+    if (first_fit->prev) {
+        first_fit->prev->next = frgm;
+        frgm->prev = first_fit->prev;
+    } else {
+        Allocator::mem_head = frgm;
+        frgm->prev = nullptr;
+    }
+
+    return (char *) first_fit + sizeof(FreeMem);
 }
 
 void Allocator::tryToJoin(FreeMem *cur) {
-    if (cur && cur->next && (char *) (cur->next) == ((char *) cur + cur->size * MEM_BLOCK_SIZE)) {
+    if (cur && cur->next && (char *) cur->next == (char *) cur + cur->size) {
         cur->size += cur->next->size;
         cur->next = cur->next->next;
-        if (cur->next)cur->next->prev = cur;
+        if (cur->next) {
+            cur->next->prev = cur;
+        }
     }
-
 }
 
 int Allocator::mem_free(void *ptr) {
-    if ((uint64 *) ptr > (uint64 *) HEAP_END_ADDR || (uint64 *) ptr < (uint64 *) HEAP_START_ADDR) return -1;
+    if ((char *) ptr - sizeof(FreeMem) < HEAP_START_ADDR
+        || (char *) ptr + MEM_BLOCK_SIZE > HEAP_END_ADDR
+        || !ptr)
+        return -1;
 
-    FreeMem *cur = nullptr;
-    if (fmem_head == nullptr || (char *) ptr < (char *) fmem_head) cur = nullptr;
-    else {
-        for (cur = fmem_head;
-             cur->next != nullptr && (char *) ptr > (char *) (cur->next);
-             cur = cur->next);
+    auto *newSeg = (FreeMem *) ((char *) ptr - sizeof(FreeMem));
+
+    FreeMem *cur = mem_head;
+
+    // newSeg = newSeg, cur = cur
+
+    if ((char *) cur >= (char *) newSeg + newSeg->size) {
+        newSeg->next = cur;
+        cur->prev = newSeg;
+        newSeg->prev = nullptr;
+        mem_head = newSeg;
+        tryToJoin(newSeg);
+        return 0;
+    } else {
+        for (; cur; cur = cur->next) {
+            if ((char *) cur + cur->size <= (char *) newSeg
+                && (char *) cur->next >= (char *) newSeg + newSeg->size)
+                break;
+        }
+
+        if (!cur) return -2;
+
+        newSeg->next = cur->next;
+        cur->next = newSeg;
+        newSeg->prev = cur;
+        newSeg->next->prev = newSeg;
+        tryToJoin(cur);
+        tryToJoin(newSeg);
+        return 0;
     }
-
-    auto newSeg = (FreeMem *) ((uint64 *) ptr - sizeof(FreeMem));
-    newSeg->prev = cur;
-
-    if (cur) newSeg->next = cur->next;
-    else newSeg->next = fmem_head;
-
-    if (newSeg->next) newSeg->next->prev = newSeg;
-    if (cur) cur->next = newSeg;
-    else fmem_head = newSeg;
-
-    tryToJoin(newSeg);
-    tryToJoin(cur);
-    return 0;
 }
+
+
 

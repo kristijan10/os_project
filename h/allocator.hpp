@@ -1,31 +1,25 @@
-#ifndef mem_allocator
-#define mem_allocator
+#ifndef allocator_hpp
+#define allocator_hpp
 
 #include "../lib/hw.h"
 
 class Allocator {
 public:
-    static Allocator &getInstance();
+    static void *mem_alloc(size_t sz);
 
-    void *mem_alloc(size_t sz);
+    static int mem_free(void *adr);
 
-    int mem_free(void *adr);
+    static void init();
 
 private:
     struct FreeMem {
-        FreeMem *next;
-        FreeMem *prev;
+        FreeMem *next, *prev;
         size_t size;
     };
 
-//    Allocator() : allocator(nullptr) {}
-
-    FreeMem *fmem_head = nullptr;
-//    static Allocator *allocator;
+    static FreeMem *mem_head;
 
     static void tryToJoin(FreeMem *cur);
-
-    void init();
 };
 
 #endif

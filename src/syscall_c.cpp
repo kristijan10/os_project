@@ -4,30 +4,28 @@
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
-//    if (Riscv::userMode) {
-        size_t newSize = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+    size_t newSize = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 
-        asm volatile("mv a1, %0" : : "r" (newSize));
-        asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
+    asm volatile("mv a1, %0" : : "r" (newSize));
+    asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
 
-        asm volatile("ecall");
+    asm volatile("ecall");
 
-        void *ptr;
-        asm volatile("mv %0, a0" : "=r" (ptr));
-        return ptr;
-//    } else return Allocator::getInstance().mem_alloc(size);
+    void *ptr;
+    asm volatile("mv %0, a0" : "=r" (ptr));
+    return ptr;
 }
 
 int mem_free(void *ptr) {
 //    if (Riscv::userMode) {
-        asm volatile("mv a1, %0" : : "r"(ptr));
-        asm volatile("mv a0, %0" : : "r"(MEM_FREE));
+    asm volatile("mv a1, %0" : : "r"(ptr));
+    asm volatile("mv a0, %0" : : "r"(MEM_FREE));
 
-        asm volatile("ecall");
+    asm volatile("ecall");
 
-        int retval;
-        asm volatile("mv %0, a0" : "=r"(retval));
-        return retval;
+    int retval;
+    asm volatile("mv %0, a0" : "=r"(retval));
+    return retval;
 //    } else return Allocator::getInstance().mem_free(ptr);
 }
 
@@ -120,7 +118,16 @@ int sem_trywait(sem_t id) {
     return ret;
 }
 
-int time_sleep(time_t time) { return 0; }
+int time_sleep(time_t time) {
+    asm volatile("mv a1, %0" : : "r" (time));
+    asm volatile("mv a0, %0" : : "r" (TIME_SLEEP));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
 
 // ============= KONZOLA =============
 char getc() {
