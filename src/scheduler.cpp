@@ -1,7 +1,6 @@
 #include "../h/scheduler.hpp"
 #include "../h/tcb.hpp"
 #include "../h/print.hpp"
-#include "../test/printing.hpp"
 
 List<TCB> Scheduler::readyThreadQueue;
 List<TCB> Scheduler::sleepThreadQueue;

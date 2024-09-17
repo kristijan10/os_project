@@ -18,6 +18,8 @@ public:
 
     int trywait();
 
+    int timedwait(time_t timeout);
+
     ~Sem() { close(); }
 
 protected:

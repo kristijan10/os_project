@@ -109,6 +109,16 @@ void Riscv::handleSupervisorTrap() {
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
             }
+            case SEM_TIMEDWAIT: {
+                auto handle = (Sem *) a1;
+                auto timeout = (time_t) a2;
+
+                int ret = -25;
+                if(handle) ret = handle->timedwait(timeout);
+
+                asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
+                break;
+            }
             case SEM_TRYWAIT: {
                 auto handle = (Sem *) a1;
 

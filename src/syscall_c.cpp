@@ -112,7 +112,17 @@ int sem_signal(sem_t handle) {
     return ret;
 }
 
-int sem_timedwait(sem_t id, time_t timeout) { return 0; }
+int sem_timedwait(sem_t id, time_t timeout) {
+    asm volatile("mv a2, %0" : : "r" (timeout));
+    asm volatile("mv a1, %0" : : "r" (id));
+    asm volatile("mv a0, %0" : : "r" (SEM_TIMEDWAIT));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
 
 int sem_trywait(sem_t id) {
     asm volatile("mv a1, %0" : : "r" (id));

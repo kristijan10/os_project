@@ -4,6 +4,10 @@
 #include "../h/list.hpp"
 
 void Sem::block() {
+    printStr("blokiram: ");
+    printInteger(TCB::running->pid);
+    printStr("\n");
+
     numOfBlocked++;
     TCB::getRunning()->setBlocked(true);
     blocked.addLast(TCB::getRunning());
@@ -14,6 +18,11 @@ void Sem::unblock() {
     numOfBlocked--;
     TCB *temp = blocked.removeFirst();
     temp->setBlocked(false);
+
+    printStr("odblokiram: ");
+    printInteger(TCB::running->pid);
+    printStr("\n");
+
     Scheduler::put(temp);
     TCB::dispatch();
 }
@@ -28,8 +37,23 @@ int Sem::wait() {
 }
 
 int Sem::trywait() {
-    if (val < 0) return 0;
+    if (val - 1 < 0) return 0;
     else return 1;
+}
+
+int Sem::timedwait(time_t timeout) {
+    if (closed) return -1;
+    if (val > 0) {
+        val--;
+        return 0;
+    }
+
+    TCB::running->setTime(timeout);
+    TCB::dispatch();
+
+    if (closed) return -1;
+    if (TCB::running->getTime() > 0) return -2;
+    return 0;
 }
 
 int Sem::signal() {

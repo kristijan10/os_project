@@ -3,7 +3,6 @@
 
 #include "scheduler.hpp"
 #include "allocator.hpp"
-#include "../test/printing.hpp"
 
 static int PID = 0;
 
@@ -29,9 +28,9 @@ public:
 
     void setBlocked(bool val) { blocked = val; }
 
-    void setTime(int t) { this->time = t; }
+    void setTime(time_t t) { this->time = t; }
 
-    int getTime() const { return time; }
+    time_t getTime() const { return time; }
 
     int getPid() const { return pid; }
 
@@ -79,7 +78,7 @@ private:
     static TCB *running;
     bool blocked;
     int pid;
-    int time;
+    time_t time;
 };
 
 #endif
