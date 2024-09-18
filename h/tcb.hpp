@@ -46,7 +46,7 @@ private:
         uint64 sp;
     };
 
-    explicit TCB(Body body, void *arg, uint64 timeSlice) :
+    TCB(Body body, void *arg, uint64 timeSlice) :
             body(body),
             stack(body != nullptr ? new uint64[DEFAULT_STACK_SIZE] : nullptr),
             context({(uint64) &threadWrapper,
@@ -59,6 +59,47 @@ private:
             time(0) {
         if (body != nullptr) Scheduler::put(this);
     }
+
+//    TCB(TCB &parent)
+//            : body(parent.body),
+//              stack(body != nullptr ? new uint64[DEFAULT_STACK_SIZE] : nullptr),
+//              context({parent.context.ra,
+//                       parent.context.sp - (uint64) parent.stack + (uint64) stack
+//                      }),
+//              timeSlice(parent.timeSlice),
+//              arg(parent.arg),
+//              finished(parent.finished),
+//              blocked(parent.blocked),
+//              pid(PID++),
+//              time(parent.time) {
+
+//        printStr("body: ");
+//        printInteger((uint64) body);
+//        printStr("\tparent.body: ");
+//        printInteger((uint64) parent.body);
+//        printStr("\ncontext.sp: ");
+//        printInteger((uint64) context.sp);
+//        printStr("\tparent.context.sp: ");
+//        printInteger((uint64) parent.context.sp);
+//        printStr("\ncontext.ra: ");
+//        printInteger((uint64) context.ra);
+//        printStr("\tparent.context.ra: ");
+//        printInteger((uint64) parent.context.ra);
+//        printStr("\nstack: ");
+//        printInteger((uint64) stack);
+//        printStr("\tparent.stack: ");
+//        printInteger((uint64) parent.stack);
+//        printStr("\npid: ");
+//        printInteger(pid);
+//        printStr("\tparent.pid: ");
+//        printInteger(parent.pid);
+//
+//        if (body != nullptr) {
+//            printStr("\nstavio u skeduler: ");
+//            printInteger(pid);
+//            printStr("\n");
+//            Scheduler::put(this);}
+//    }
 
     static void dispatch();
 

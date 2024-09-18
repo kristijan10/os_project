@@ -63,8 +63,6 @@ int Allocator::mem_free(void *ptr) {
 
     FreeMem *cur = mem_head;
 
-    // newSeg = newSeg, cur = cur
-
     if ((char *) cur >= (char *) newSeg + newSeg->size) {
         newSeg->next = cur;
         cur->prev = newSeg;
@@ -90,6 +88,3 @@ int Allocator::mem_free(void *ptr) {
         return 0;
     }
 }
-
-
-

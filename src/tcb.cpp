@@ -1,5 +1,4 @@
 #include "../h/tcb.hpp"
-#include "../lib/mem.h"
 #include "../h/riscv.hpp"
 #include "../h/syscall_c.h"
 #include "../h/print.hpp"
@@ -38,5 +37,5 @@ void TCB::threadWrapper() {
 }
 
 void TCB::join(thread_t *handle) {
-    while(!(*handle)->isFinished()) dispatch();
+    while (!(*handle)->isFinished()) dispatch();
 }

@@ -101,10 +101,10 @@ void userMain() {
             printString("TEST 7 (zadatak 2., testiranje da li se korisnicki kod izvrsava u korisnickom rezimu)\n");
 #endif
             break;
-        case 8:
-            mojTestTimedwait();
-            printString("TEST 8 (sem_timedwait)\n");
-            break;
+//        case 8:
+//            mojTestTimedwait();
+//            printString("TEST 8 (sem_timedwait)\n");
+//            break;
 //        case 9:
 //            randomTest();
 //            printString("TEST 9 (RandomTest)\n");
@@ -112,9 +112,13 @@ void userMain() {
 //        case 8:
 
 //            break;
-        case 9:
-            mojTestJoin();
-            printString("TEST 10 (join)\n");
+//        case 9:
+//            mojTestJoin();
+//            printString("TEST 10 (join)\n");
+//            break;
+        case 8:
+            mojTestFork();
+            printString("TEST A (fork)\n");
             break;
         default:
             printString("Niste uneli odgovarajuci broj za test\n");

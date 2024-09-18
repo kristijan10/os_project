@@ -4,10 +4,6 @@
 #include "../h/list.hpp"
 
 void Sem::block() {
-    printStr("blokiram: ");
-    printInteger(TCB::running->pid);
-    printStr("\n");
-
     numOfBlocked++;
     TCB::getRunning()->setBlocked(true);
     blocked.addLast(TCB::getRunning());
@@ -18,11 +14,6 @@ void Sem::unblock() {
     numOfBlocked--;
     TCB *temp = blocked.removeFirst();
     temp->setBlocked(false);
-
-    printStr("odblokiram: ");
-    printInteger(TCB::running->pid);
-    printStr("\n");
-
     Scheduler::put(temp);
     TCB::dispatch();
 }
