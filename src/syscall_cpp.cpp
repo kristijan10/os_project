@@ -32,6 +32,7 @@ Thread::Thread(void (*body)(void *), void *arg) :
 Thread::~Thread() {}
 
 int Thread::start() {
+//    if(maxThread) sem->wait();
     if (body) thread_create(&myHandle, body, arg);
     else thread_create(&myHandle, wrapper, (void *) this);
 
@@ -48,10 +49,19 @@ Thread::Thread() :
         arg(nullptr) {}
 
 void Thread::wrapper(void *thread) {
-    ((Thread *) thread)->run();
+    auto t = (Thread *) thread;
+//    if(t){
+//        t->id = thread_getId();
+        t->run();
+//        if(maxThread) sem->signal();
+//    }
 }
 
-void Thread::join() { if (myHandle) thread_join(&myHandle); }
+//void Thread::join() { if (myHandle) thread_join(&myHandle); }
+
+//int Thread::maxNumOfThreads = 5;
+//bool Thread::maxThread = false;
+Semaphore *Thread::sem = nullptr;
 
 // ============= SEMAFOR =============
 Semaphore::Semaphore(unsigned init) : myHandle(nullptr) { sem_open(&myHandle, init); }
@@ -73,7 +83,7 @@ void PeriodicThread::terminate() { period = 0; }
 
 void PeriodicThread::run() {
     while (period) {
-        sleep(period);
+        Thread::sleep(period);
         periodicActivation();
     }
 

@@ -1,4 +1,4 @@
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
 #include "../h/riscv.hpp"
 #include "../h/allocator.hpp"
 
@@ -17,7 +17,6 @@ void *mem_alloc(size_t size) {
 }
 
 int mem_free(void *ptr) {
-//    if (Riscv::userMode) {
     asm volatile("mv a1, %0" : : "r"(ptr));
     asm volatile("mv a0, %0" : : "r"(MEM_FREE));
 
@@ -26,7 +25,6 @@ int mem_free(void *ptr) {
     int retval;
     asm volatile("mv %0, a0" : "=r"(retval));
     return retval;
-//    } else return Allocator::getInstance().mem_free(ptr);
 }
 
 // ============= NITI =============
@@ -59,12 +57,23 @@ void thread_dispatch() {
     asm volatile("ecall");
 }
 
-void thread_join(thread_t *handle){
-    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
-    asm volatile("mv a0, %0" : : "r" (THREAD_JOIN));
+//void thread_join(thread_t *handle){
+//    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
+//    asm volatile("mv a0, %0" : : "r" (THREAD_JOIN));
 
-    asm volatile("ecall");
-}
+//    asm volatile("ecall");
+//}
+
+//int thread_getId(){
+//    asm volatile("mv a0, %0" : : "r" (0x15));
+
+//    asm volatile("ecall");
+
+//    int ret;
+//    asm volatile("mv %0, a0" : "=r" (ret));
+//    thread_dispatch();
+//    return ret;
+//}
 
 // ============= SEMAFOR =============
 int sem_open(sem_t *handle, unsigned init) {
