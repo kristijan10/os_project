@@ -52,7 +52,7 @@ void Thread::wrapper(void *thread) {
     auto t = (Thread *) thread;
 //    if(t){
 //        t->id = thread_getId();
-        t->run();
+    t->run();
 //        if(maxThread) sem->signal();
 //    }
 }
@@ -77,7 +77,7 @@ int Semaphore::timedWait(time_t time) { return sem_timedwait(myHandle, time); }
 int Semaphore::tryWait() { return sem_trywait(myHandle); }
 
 // ============= PERIODICNE NITI =============
-PeriodicThread::PeriodicThread(time_t period) { this->period = period; }
+PeriodicThread::PeriodicThread(time_t period) : period(period) {}
 
 void PeriodicThread::terminate() { period = 0; }
 

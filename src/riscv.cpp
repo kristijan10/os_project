@@ -25,7 +25,6 @@ void Riscv::handleSupervisorTrap() {
 
     if (scause == 0x0000000000000009UL ||
         scause == 0x0000000000000008UL) {
-        // ecall
         uint64 volatile sepc = r_sepc() + 4;
         uint64 volatile sstatus = r_sstatus();
 
@@ -55,7 +54,7 @@ void Riscv::handleSupervisorTrap() {
                 break;
             }
             case THREAD_EXIT: {
-                TCB::getRunning()->setFinished(true);
+                TCB::running->setState(TCB::FINISHED);
                 TCB::dispatch();
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (0));
@@ -120,7 +119,7 @@ void Riscv::handleSupervisorTrap() {
                 auto timeout = (time_t) a2;
 
                 int ret = -25;
-                if(handle) ret = handle->timedwait(timeout);
+                if (handle) ret = handle->timedwait(timeout);
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
@@ -129,7 +128,7 @@ void Riscv::handleSupervisorTrap() {
                 auto handle = (Sem *) a1;
 
                 int ret = -26;
-                if(handle) ret = handle->trywait();
+                if (handle) ret = handle->trywait();
 
                 asm volatile("sd %0, 8*10(fp)" : : "r" (ret));
                 break;
@@ -158,7 +157,6 @@ void Riscv::handleSupervisorTrap() {
                 break;
         }
 
-//        TCB::dispatch();
         w_sstatus(sstatus);
         w_sepc(sepc);
     } else if (scause == 0x8000000000000001UL) {
@@ -182,17 +180,19 @@ void Riscv::handleSupervisorTrap() {
         console_handler();
     } else {
         printStr("-----------\n");
-        printStr("SCAUSE: ");
+        printStr("scause: ");
         printInteger(scause);
         printStr("\n");
-        printStr("SEPC: "); // gde se desio prekid
+        printStr("sepc: "); // gde se desio prekid
         printInteger(r_sepc());
-        printStr("\n");
-        printStr("STVAL: "); // dodatno objasnjenje interrupt-a
-        printInteger(r_stval());
+//        printStr("\n");
+//        printStr("STVAL: "); // dodatno objasnjenje interrupt-a
+//        printInteger(r_stval());
         printStr("\n-----------\n");
-        thread_exit();
-    }
 
+        size_t halt = 0x5555;
+        volatile size_t *address = (size_t *) 0x100000;
+        __asm__ volatile ("sw %[halt], 0(%[address])" : :[halt] "r"(halt), [address] "r"(address));
+    }
     Riscv::userMode = true;
 }

@@ -3,16 +3,17 @@
 
 #include "scheduler.hpp"
 #include "allocator.hpp"
-
-static int PID = 0;
+#include "riscv.hpp"
 
 class TCB {
 public:
+    enum State {
+        CREATED, RUNNING, READY, BLOCKED, FINISHED
+    };
+
     using Body = void (*)(void *);
 
-    bool isFinished() const { return finished; }
-
-    void setFinished(bool val) { finished = val; }
+    bool isFinished() const { return state==FINISHED; }
 
     uint64 getTimeSlice() const { return timeSlice; }
 
@@ -20,25 +21,31 @@ public:
 
     static void yield();
 
+    static void exit();
+
+    void start();
+
     static TCB *getRunning() { return running; }
 
-    static void setRunning(TCB *runn) { running = runn; }
+    bool isBlocked() const { return state == BLOCKED; }
 
-    bool isBlocked() const { return blocked; }
-
-    void setBlocked(bool val) { blocked = val; }
+    void setState(State s) { state = s; }
 
     void setTime(time_t t) { this->time = t; }
 
     time_t getTime() const { return time; }
 
-    int getPid() const { return pid; }
+    uint64 getPid() const { return pid; }
 
     friend class Riscv;
 
     friend class Sem;
 
     ~TCB() { delete[] stack; }
+
+    static TCB *running;
+
+//    bool isUser() const {return userMode;}
 
 //    static int id_th;
 
@@ -55,53 +62,13 @@ private:
                      body != nullptr ? (uint64) &stack[DEFAULT_STACK_SIZE] : 0}),
             timeSlice(timeSlice),
             arg(arg),
-            finished(false),
-            blocked(false),
+            state(CREATED),
             pid(PID++),
-            time(0) {
-        if (body != nullptr) Scheduler::put(this);
+            time(0)
+//            userMode(Riscv::isUserMode())
+            {
+        if (body) start();
     }
-
-//    TCB(TCB &parent)
-//            : body(parent.body),
-//              stack(body != nullptr ? new uint64[DEFAULT_STACK_SIZE] : nullptr),
-//              context({parent.context.ra,
-//                       parent.context.sp - (uint64) parent.stack + (uint64) stack
-//                      }),
-//              timeSlice(parent.timeSlice),
-//              arg(parent.arg),
-//              finished(parent.finished),
-//              blocked(parent.blocked),
-//              pid(PID++),
-//              time(parent.time) {
-
-//        printStr("body: ");
-//        printInteger((uint64) body);
-//        printStr("\tparent.body: ");
-//        printInteger((uint64) parent.body);
-//        printStr("\ncontext.sp: ");
-//        printInteger((uint64) context.sp);
-//        printStr("\tparent.context.sp: ");
-//        printInteger((uint64) parent.context.sp);
-//        printStr("\ncontext.ra: ");
-//        printInteger((uint64) context.ra);
-//        printStr("\tparent.context.ra: ");
-//        printInteger((uint64) parent.context.ra);
-//        printStr("\nstack: ");
-//        printInteger((uint64) stack);
-//        printStr("\tparent.stack: ");
-//        printInteger((uint64) parent.stack);
-//        printStr("\npid: ");
-//        printInteger(pid);
-//        printStr("\tparent.pid: ");
-//        printInteger(parent.pid);
-//
-//        if (body != nullptr) {
-//            printStr("\nstavio u skeduler: ");
-//            printInteger(pid);
-//            printStr("\n");
-//            Scheduler::put(this);}
-//    }
 
     static void dispatch();
 
@@ -116,13 +83,13 @@ private:
     Context context;
     uint64 timeSlice;
     void *arg;
-    bool finished;
     static uint64 timeSliceCounter;
-    static TCB *running;
-    bool blocked;
-    int pid;
+    State state;
+    static uint64 PID;
+    uint64 pid;
     time_t time;
-    sem_t semJoin;
+//    bool userMode;
+//    sem_t semJoin;
 };
 
 #endif

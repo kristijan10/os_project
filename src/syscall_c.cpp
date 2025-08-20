@@ -100,7 +100,7 @@ int sem_close(sem_t handle) {
 }
 
 int sem_wait(sem_t handle) {
-    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
     asm volatile("mv a0, %0" : : "r" (SEM_WAIT));
 
     asm volatile("ecall");
@@ -111,7 +111,7 @@ int sem_wait(sem_t handle) {
 }
 
 int sem_signal(sem_t handle) {
-    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
     asm volatile("mv a0, %0" : : "r" (SEM_SIGNAL));
 
     asm volatile("ecall");
@@ -122,8 +122,8 @@ int sem_signal(sem_t handle) {
 }
 
 int sem_timedwait(sem_t id, time_t timeout) {
-    asm volatile("mv a2, %0" : : "r" (timeout));
-    asm volatile("mv a1, %0" : : "r" (id));
+    asm volatile("mv a2, %0" : : "r" ((uint64) timeout));
+    asm volatile("mv a1, %0" : : "r" ((uint64) id));
     asm volatile("mv a0, %0" : : "r" (SEM_TIMEDWAIT));
 
     asm volatile("ecall");
@@ -134,7 +134,7 @@ int sem_timedwait(sem_t id, time_t timeout) {
 }
 
 int sem_trywait(sem_t id) {
-    asm volatile("mv a1, %0" : : "r" (id));
+    asm volatile("mv a1, %0" : : "r" ((uint64) id));
     asm volatile("mv a0, %0" : : "r" (SEM_TRYWAIT));
 
     asm volatile("ecall");
@@ -145,7 +145,7 @@ int sem_trywait(sem_t id) {
 }
 
 int time_sleep(time_t time) {
-    asm volatile("mv a1, %0" : : "r" (time));
+    asm volatile("mv a1, %0" : : "r" ((uint64) time));
     asm volatile("mv a0, %0" : : "r" (TIME_SLEEP));
 
     asm volatile("ecall");

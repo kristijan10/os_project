@@ -4,27 +4,24 @@
 #include "../h/list.hpp"
 
 void Sem::block() {
-    numOfBlocked++;
-    TCB::getRunning()->setBlocked(true);
-    blocked.addLast(TCB::getRunning());
-    TCB::dispatch();
+    TCB *running = TCB::getRunning();
+    running->setState(TCB::BLOCKED);
+    blocked.addLast(running);
+    TCB::yield();
 }
 
 void Sem::unblock() {
-    numOfBlocked--;
-    TCB *temp = blocked.removeFirst();
-    temp->setBlocked(false);
-    Scheduler::put(temp);
-    TCB::dispatch();
+    TCB *t = blocked.removeFirst();
+    t->setState(TCB::READY);
+    Scheduler::put(t);
+    TCB::yield();
 }
 
 int Sem::wait() {
     if (--val < 0) block();
-    if (!closed || numOfBlocked == 0) return 0;
-    else {
-        numOfBlocked--;
-        return -1;
-    }
+    if (closed) return -1;
+
+    return 0;
 }
 
 int Sem::trywait() {
@@ -61,17 +58,12 @@ int Sem::close() {
     if (closed) return -1;
     closed = true;
 
-    if (blocked.peekFirst() != nullptr) {
-        while (blocked.peekFirst()) {
-            blocked.peekFirst()->setBlocked(false);
-            Scheduler::put(blocked.peekFirst());
-            blocked.removeFirst();
-        }
+    while (blocked.peekFirst()) {
+        TCB *t = blocked.removeFirst();
+        t->setState(TCB::READY);
+        Scheduler::put(t);
+
     }
 
     return 0;
 }
-
-//void Sem::printBlocked() {
-//    blocked
-//}

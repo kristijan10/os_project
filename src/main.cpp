@@ -19,14 +19,14 @@ int main() {
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
 
     threads[0] = TCB::createThread(nullptr, nullptr);
-    TCB::setRunning(threads[0]);
+    TCB::running = threads[0];
 
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
     threads[1] = TCB::createThread(userMainWrapper, nullptr);
 
-    while (!threads[1]->isFinished()) thread_dispatch();
+    while (!threads[1]->isFinished()) TCB::yield();
 
-    delete threads[1];
+//    delete threads[1];
     return 0;
 }
