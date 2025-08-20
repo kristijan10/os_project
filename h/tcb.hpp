@@ -40,6 +40,8 @@ public:
 
     ~TCB() { delete[] stack; }
 
+//    static int id_th;
+
 private:
     struct Context {
         uint64 ra;
@@ -103,7 +105,7 @@ private:
 
     static void dispatch();
 
-    static void join(thread_t *handle);
+//    static void join(thread_t *handle);
 
     static void contextSwitch(Context *oldContext, Context *runningContext);
 
@@ -120,6 +122,7 @@ private:
     bool blocked;
     int pid;
     time_t time;
+    sem_t semJoin;
 };
 
 #endif

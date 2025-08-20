@@ -1,7 +1,7 @@
 #include "../h/tcb.hpp"
 #include "../h/print.hpp"
 #include "../h/riscv.hpp"
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
 #include "../h/sem.hpp"
 #include "../h/allocator.hpp"
 

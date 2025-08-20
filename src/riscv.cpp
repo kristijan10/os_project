@@ -66,11 +66,17 @@ void Riscv::handleSupervisorTrap() {
                 TCB::dispatch();
                 break;
             }
-            case THREAD_JOIN: {
-                TCB::join((thread_t *) a1);
+//            case THREAD_JOIN: {
+//                TCB::join((thread_t *) a1);
 
-                break;
-            }
+//                break;
+//            }
+//            case 0x15: {
+//                int t_id = TCB::running->getPid();
+
+//                asm volatile("sd %0, 8*10(fp)" : : "r" (t_id));
+//                break;
+//            }
             case SEM_OPEN: {
                 auto handle = (Sem **) a1;
                 auto init = (int) a2;

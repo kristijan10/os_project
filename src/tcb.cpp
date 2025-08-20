@@ -1,16 +1,18 @@
 #include "../h/tcb.hpp"
 #include "../h/riscv.hpp"
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
 #include "../h/print.hpp"
 
 TCB *TCB::running = nullptr;
 uint64 TCB::timeSliceCounter = 0;
+//int TCB::id_th = -2;
 
 TCB *TCB::createThread(TCB::Body body, void *arg) {
     return new TCB(body, arg, DEFAULT_TIME_SLICE);
 }
 
 void TCB::yield() {
+    // umece 0x13 u kod, sto je kod za dispatch
     asm volatile("li a0, 0x13");
 
     asm volatile("ecall");
@@ -36,6 +38,6 @@ void TCB::threadWrapper() {
     thread_exit();
 }
 
-void TCB::join(thread_t *handle) {
-    while (!(*handle)->isFinished()) dispatch();
-}
+//void TCB::join(thread_t *handle) {
+//    while (!(*handle)->isFinished()) dispatch();
+//}

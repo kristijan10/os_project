@@ -1,7 +1,7 @@
 #ifndef list_hpp
 #define list_hpp
 
-#include "syscall_c.h"
+#include "syscall_c.hpp"
 
 template<typename T>
 class List {

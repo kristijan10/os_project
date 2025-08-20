@@ -116,10 +116,14 @@ void userMain() {
 //            mojTestJoin();
 //            printString("TEST 10 (join)\n");
 //            break;
-        case 8:
-            mojTestFork();
-            printString("TEST A (fork)\n");
-            break;
+//        case 8:
+//            testMainGetId();
+//            printString("TEST getMainId\n");
+//            break;
+//        case 9:
+//            testMaxThreads();
+//            printString("TEST MaxThreads\n");
+//            break;
         default:
             printString("Niste uneli odgovarajuci broj za test\n");
     }
