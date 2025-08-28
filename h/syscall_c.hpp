@@ -2,8 +2,7 @@
 #define syscall_c_hpp
 
 #include "../lib/hw.h"
-#include "codes.h"
-//#include "tcb.hpp"
+//#include "riscv.hpp"
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size);

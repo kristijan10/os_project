@@ -1,13 +1,13 @@
 #include "../h/syscall_c.hpp"
+
 #include "../h/riscv.hpp"
-#include "../h/allocator.hpp"
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
     size_t newSize = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 
     asm volatile("mv a1, %0" : : "r" (newSize));
-    asm volatile("mv a0, %0" : : "r" (MEM_ALLOC));
+    asm volatile("mv a0, %0" : : "r" (Riscv::MEM_ALLOC));
 
     asm volatile("ecall");
 
@@ -18,7 +18,7 @@ void *mem_alloc(size_t size) {
 
 int mem_free(void *ptr) {
     asm volatile("mv a1, %0" : : "r"(ptr));
-    asm volatile("mv a0, %0" : : "r"(MEM_FREE));
+    asm volatile("mv a0, %0" : : "r"(Riscv::MEM_FREE));
 
     asm volatile("ecall");
 
@@ -32,7 +32,7 @@ int thread_create(thread_t *handle, void(*start_routine)(void *), void *arg) {
     asm volatile("mv a3, %0" : : "r" ((uint64) arg));
     asm volatile("mv a2, %0" : : "r" ((uint64) start_routine));
     asm volatile("mv a1, %0" : : "r" ((uint64) handle));
-    asm volatile("mv a0, %0" : : "r" (THREAD_CREATE));
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_CREATE));
 
     asm volatile("ecall");
 
@@ -42,7 +42,7 @@ int thread_create(thread_t *handle, void(*start_routine)(void *), void *arg) {
 }
 
 int thread_exit() {
-    asm volatile("mv a0, %0" : : "r" (THREAD_EXIT));
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_EXIT));
 
     asm volatile("ecall");
 
@@ -52,15 +52,15 @@ int thread_exit() {
 }
 
 void thread_dispatch() {
-    asm volatile("mv a0, %0" : : "r" (THREAD_DISPATCH));
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_DISPATCH));
 
     asm volatile("ecall");
 }
 
 //void thread_join(thread_t *handle){
 //    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
-//    asm volatile("mv a0, %0" : : "r" (THREAD_JOIN));
-
+//    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_JOIN));
+//
 //    asm volatile("ecall");
 //}
 
@@ -79,7 +79,7 @@ void thread_dispatch() {
 int sem_open(sem_t *handle, unsigned init) {
     asm volatile("mv a2, %0" : : "r" (init));
     asm volatile("mv a1, %0" : : "r" (handle));
-    asm volatile("mv a0, %0" : : "r" (SEM_OPEN));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_OPEN));
 
     asm volatile("ecall");
 
@@ -90,7 +90,7 @@ int sem_open(sem_t *handle, unsigned init) {
 
 int sem_close(sem_t handle) {
     asm volatile("mv a1, %0" : : "r" (handle));
-    asm volatile("mv a0, %0" : : "r" (SEM_CLOSE));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_CLOSE));
 
     asm volatile("ecall");
 
@@ -101,7 +101,7 @@ int sem_close(sem_t handle) {
 
 int sem_wait(sem_t handle) {
     asm volatile("mv a1, %0" : : "r" ((uint64) handle));
-    asm volatile("mv a0, %0" : : "r" (SEM_WAIT));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_WAIT));
 
     asm volatile("ecall");
 
@@ -112,7 +112,7 @@ int sem_wait(sem_t handle) {
 
 int sem_signal(sem_t handle) {
     asm volatile("mv a1, %0" : : "r" ((uint64) handle));
-    asm volatile("mv a0, %0" : : "r" (SEM_SIGNAL));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_SIGNAL));
 
     asm volatile("ecall");
 
@@ -124,7 +124,7 @@ int sem_signal(sem_t handle) {
 int sem_timedwait(sem_t id, time_t timeout) {
     asm volatile("mv a2, %0" : : "r" ((uint64) timeout));
     asm volatile("mv a1, %0" : : "r" ((uint64) id));
-    asm volatile("mv a0, %0" : : "r" (SEM_TIMEDWAIT));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_TIMEDWAIT));
 
     asm volatile("ecall");
 
@@ -135,7 +135,7 @@ int sem_timedwait(sem_t id, time_t timeout) {
 
 int sem_trywait(sem_t id) {
     asm volatile("mv a1, %0" : : "r" ((uint64) id));
-    asm volatile("mv a0, %0" : : "r" (SEM_TRYWAIT));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_TRYWAIT));
 
     asm volatile("ecall");
 
@@ -146,7 +146,7 @@ int sem_trywait(sem_t id) {
 
 int time_sleep(time_t time) {
     asm volatile("mv a1, %0" : : "r" ((uint64) time));
-    asm volatile("mv a0, %0" : : "r" (TIME_SLEEP));
+    asm volatile("mv a0, %0" : : "r" (Riscv::TIME_SLEEP));
 
     asm volatile("ecall");
 
@@ -157,7 +157,7 @@ int time_sleep(time_t time) {
 
 // ============= KONZOLA =============
 char getc() {
-    asm volatile("mv a0, %0" : : "r"(CONSOLE_GETC));
+    asm volatile("mv a0, %0" : : "r"(Riscv::CONSOLE_GETC));
 
     asm volatile("ecall");
 
@@ -169,7 +169,7 @@ char getc() {
 
 void putc(char c) {
     asm volatile("mv a1, %0" : : "r"(c));
-    asm volatile("mv a0, %0" : : "r"(CONSOLE_PUTC));
+    asm volatile("mv a0, %0" : : "r"(Riscv::CONSOLE_PUTC));
 
     asm volatile("ecall");
 //    __putc(c);

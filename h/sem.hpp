@@ -1,8 +1,10 @@
 #ifndef sem_hpp
 #define sem_hpp
 
-#include "tcb.hpp"
-#include "../h/print.hpp"
+//#include "tcb.hpp"
+#include "list.hpp"
+#include "../lib/hw.h"
+class TCB;
 
 //static int SID = 0;
 
@@ -28,12 +30,12 @@ protected:
     void unblock();
 
 private:
-    explicit Sem(int init = 1) : val(init), closed(false), numOfBlocked(0) {}
+    explicit Sem(int init = 1) : val(init), closed(false) {}
 
     int val;
     List<TCB> blocked;
     bool closed;
-    int numOfBlocked;
+//    int numOfBlocked;
 //    int sid;
 };
 

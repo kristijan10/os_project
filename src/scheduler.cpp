@@ -1,6 +1,5 @@
 #include "../h/scheduler.hpp"
 #include "../h/tcb.hpp"
-#include "../h/print.hpp"
 
 List<TCB> Scheduler::readyThreadQueue;
 List<TCB> Scheduler::sleepThreadQueue;
@@ -13,9 +12,7 @@ TCB *Scheduler::get() {
 }
 
 void Scheduler::put(TCB *tcb) {
-//    printStr("\nscheduler::put: ");
-//    printInteger(tcb->getPid());
-//    printStr("\n");
+//    tcb->setState(TCB::READY);
     readyThreadQueue.addLast(tcb);
 }
 
@@ -52,7 +49,9 @@ void Scheduler::putSleep(TCB *tcb) {
 TCB *Scheduler::getSleep() {
     if (sleepThreadQueue.peekFirst()->getTime() != 0) return nullptr;
 //    printStr("Uzeo iz sleepQueue\n");
-    return sleepThreadQueue.removeFirst();
+    TCB *t = sleepThreadQueue.removeFirst();
+//    t->setState(TCB::READY);
+    return t;
 }
 
 void Scheduler::updateSleep() {
@@ -60,18 +59,10 @@ void Scheduler::updateSleep() {
     if (elem) {
         elem->setTime(elem->getTime() - 1);
 
-//        printStr("pid:");
-//        printInteger(elem->getPid());
-//        printStr("\t");
-//        printInteger(elem->getTime());
-//        printStr("\n");
-
         while (elem && elem->getTime() <= 0) {
+            elem->setState(TCB::READY);
             Scheduler::put(elem);
             Scheduler::sleepThreadQueue.removeFirst();
-//            printStr("Uklonio:");
-//            printInteger((uint64)elem);
-//            printStr("\n");
             elem = Scheduler::sleepThreadQueue.peekFirst();
         }
     }

@@ -2,6 +2,7 @@
 #define scheduler_hpp
 
 #include "list.hpp"
+class TCB;
 
 class Scheduler {
 public:

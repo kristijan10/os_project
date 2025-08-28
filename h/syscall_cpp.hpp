@@ -1,8 +1,8 @@
 #ifndef syscall_cpp_hpp
 #define syscall_cpp_hpp
 
-#include "../lib/hw.h"
-#include "../h/syscall_c.hpp"
+#include "syscall_c.hpp"
+//#include "allocator.hpp"
 
 // ============= MEMORIJA =============
 void *operator new (size_t size);

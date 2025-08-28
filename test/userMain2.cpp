@@ -1,8 +1,9 @@
 #include "../h/syscall_c.hpp"
-#include "../test/printing.hpp"
+#include "printing.hpp"
 
 // Jednostavan semafor za sinhronizaciju
 static sem_t semaphore;
+static bool finished[2] = {false};
 
 // Funkcija proizvođača
 static void producer(void *arg) {
@@ -18,6 +19,8 @@ static void producer(void *arg) {
         sem_signal(semaphore); // Signaliziraj semafor
         thread_dispatch();
     }
+
+    finished[0] = true;
 }
 
 // Funkcija potrošača
@@ -34,6 +37,8 @@ static void consumer(void *arg) {
         sem_signal(semaphore); // Signaliziraj semafor
         thread_dispatch();
     }
+
+    finished[1] = true;
 }
 
 // Funkcija za testiranje semafora
@@ -48,12 +53,7 @@ void userMain2() {
     thread_create(&producerThread, producer, &producerId);
     thread_create(&consumerThread, consumer, &consumerId);
 
-    // Prebacivanje na niti
-    thread_dispatch();
-
-    // Čekanje niti da završe
-    sem_wait(semaphore); // Sinhronizacija glavne niti
-    sem_wait(semaphore);
+    while(!finished[0] && !finished[1]) thread_dispatch();
 
     // Uništavanje semafora
     sem_close(semaphore);

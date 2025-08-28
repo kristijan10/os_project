@@ -1,11 +1,11 @@
 #include "../h/tcb.hpp"
-#include "../h/print.hpp"
 #include "../h/riscv.hpp"
 #include "../h/syscall_c.hpp"
 #include "../h/sem.hpp"
 #include "../h/allocator.hpp"
 
-extern void userMain();
+void userMain();
+void testSemaphores();
 
 void userMainWrapper(void *) {
     userMain();
@@ -24,9 +24,8 @@ int main() {
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
     threads[1] = TCB::createThread(userMainWrapper, nullptr);
+    while (!threads[1]->isFinished()) thread_dispatch();
 
-    while (!threads[1]->isFinished()) TCB::yield();
-
-//    delete threads[1];
+    delete threads[1];
     return 0;
 }

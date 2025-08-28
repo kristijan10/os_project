@@ -31,6 +31,10 @@
 
 #endif
 
+void testSemaphores();
+void complexTCBTest();
+void testSem();
+
 void userMain() {
     printString("Unesite broj testa? [1-7]\n");
     int test = getc() - '0';
@@ -101,10 +105,10 @@ void userMain() {
             printString("TEST 7 (zadatak 2., testiranje da li se korisnicki kod izvrsava u korisnickom rezimu)\n");
 #endif
             break;
-//        case 8:
-//            mojTestTimedwait();
-//            printString("TEST 8 (sem_timedwait)\n");
-//            break;
+        case 8:
+            testSem();
+            printString("TEST 8\n");
+            break;
 //        case 9:
 //            randomTest();
 //            printString("TEST 9 (RandomTest)\n");

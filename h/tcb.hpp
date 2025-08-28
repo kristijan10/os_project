@@ -1,9 +1,10 @@
 #ifndef tcb_hpp
 #define tcb_hpp
 
-#include "scheduler.hpp"
-#include "allocator.hpp"
-#include "riscv.hpp"
+//#include "scheduler.hpp"
+//#include "allocator.hpp"
+//#include "riscv.hpp"
+#include "../lib/hw.h"
 
 class TCB {
 public:

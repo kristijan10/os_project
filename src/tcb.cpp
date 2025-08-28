@@ -1,5 +1,8 @@
 #include "../h/tcb.hpp"
 
+#include "../h/riscv.hpp"
+#include "../h/scheduler.hpp"
+
 TCB *TCB::running = nullptr;
 uint64 TCB::timeSliceCounter = 0;
 uint64 TCB::PID = 0;
@@ -23,7 +26,10 @@ void TCB::yield() {
 void TCB::dispatch() {
     TCB *old = TCB::running;
 
-    if (old->getTime() > 0) Scheduler::putSleep(old);
+    if (old->getTime() > 0) {
+        old->setState(BLOCKED);
+        Scheduler::putSleep(old);
+    }
     else if (!old->isFinished() && !old->isBlocked()) {
         old->setState(READY);
         Scheduler::put(old);
@@ -39,9 +45,10 @@ void TCB::dispatch() {
 void TCB::threadWrapper() {
     Riscv::popSppSpie();
 
-    running->body(running->arg);
-
-    exit();
+    if (running->body) {
+        running->body(running->arg);
+        exit();
+    }
 }
 
 void TCB::exit() {

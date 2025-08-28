@@ -1,8 +1,9 @@
 #include "../h/riscv.hpp"
-#include "../lib/console.h"
+
 #include "../h/tcb.hpp"
-#include "../h/sem.hpp"
 #include "../h/allocator.hpp"
+#include "../h/sem.hpp"
+#include "../h/scheduler.hpp"
 
 bool Riscv::userMode = false;
 
@@ -67,7 +68,7 @@ void Riscv::handleSupervisorTrap() {
             }
 //            case THREAD_JOIN: {
 //                TCB::join((thread_t *) a1);
-
+//
 //                break;
 //            }
 //            case 0x15: {
@@ -179,20 +180,20 @@ void Riscv::handleSupervisorTrap() {
         // console interrupt
         console_handler();
     } else {
-        printStr("-----------\n");
-        printStr("scause: ");
-        printInteger(scause);
-        printStr("\n");
-        printStr("sepc: "); // gde se desio prekid
-        printInteger(r_sepc());
-//        printStr("\n");
-//        printStr("STVAL: "); // dodatno objasnjenje interrupt-a
+        printString("-----------\n");
+        printString("scause: ");
+        printInt(scause);
+        printString("\n");
+        printString("sepc: "); // gde se desio prekid
+        printInt(r_sepc());
+//        printString("\n");
+//        printString("STVAL: "); // dodatno objasnjenje interrupt-a
 //        printInteger(r_stval());
-        printStr("\n-----------\n");
+        printString("\n-----------\n");
 
-        size_t halt = 0x5555;
-        volatile size_t *address = (size_t *) 0x100000;
-        __asm__ volatile ("sw %[halt], 0(%[address])" : :[halt] "r"(halt), [address] "r"(address));
+        // gasim emulator
+        volatile uint32 *addr = (uint32*)0x100000;
+        *addr = 0x5555;
     }
     Riscv::userMode = true;
 }
