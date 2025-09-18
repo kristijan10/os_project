@@ -1,54 +1,69 @@
 #include "../h/syscall_cpp.hpp"
-#include "../lib/mem.h"
-#include "../h/scheduler.hpp"
-#include "../h/print.hpp"
+#include "../h/allocator.hpp"
+#include "../h/riscv.hpp"
 
 // ============= MEMORIJA =============
 void *operator new(size_t size) {
-//    printStr("_cpp: new\n");
-    return __mem_alloc(size); }
+    if (!Riscv::userMode) return Allocator::mem_alloc(size);
+    return mem_alloc(size);
+}
 
 void operator delete(void *ptr) noexcept {
-//    printStr("_cpp: delete\n");
-    __mem_free(ptr); }
+    if (!Riscv::userMode) Allocator::mem_free(ptr);
+    else mem_free(ptr);
+}
 
+void *operator new[](size_t size) {
+    if (!Riscv::userMode) return Allocator::mem_alloc(size);
+    return mem_alloc(size);
+}
+
+void operator delete[](void *ptr) noexcept {
+    if (!Riscv::userMode) Allocator::mem_free(ptr);
+    else mem_free(ptr);
+}
 
 // ============= NITI =============
 Thread::Thread(void (*body)(void *), void *arg) :
         myHandle(nullptr),
         body(body),
-        arg(arg) {
-    thread_create(&myHandle, body, arg);
-}
+        arg(arg) {}
 
-Thread::~Thread() noexcept {}
+Thread::~Thread() {}
 
 int Thread::start() {
-//    if(body != nullptr) return thread_create(&myHandle, body, arg);
-//    return thread_create(&myHandle, runWrapper, this);
+    if (body) thread_create(&myHandle, body, arg);
+    else thread_create(&myHandle, wrapper, (void *) this);
+
     return 0;
 }
 
-void Thread::dispatch() {
-    thread_dispatch();
+void Thread::dispatch() { thread_dispatch(); }
+
+int Thread::sleep(time_t time) { return time_sleep(time); }
+
+Thread::Thread() :
+        myHandle(nullptr),
+        body(nullptr),
+        arg(nullptr) {}
+
+void Thread::wrapper(void *thread) {
+    auto t = (Thread *) thread;
+    t->run();
 }
 
-int Thread::sleep(time_t time) {
-    return time_sleep(time);
+int Thread::getId() const {
+    return thread_getId();
 }
 
-Thread::Thread() : myHandle(nullptr), body(nullptr), arg(this) {
-    thread_create(&myHandle, runWrapper, this);
-}
+//void Thread::join() { if (myHandle) thread_join(&myHandle); }
 
-void Thread::runWrapper(void *ptr) {
-    if(ptr) ((Thread *)ptr)->run();
-}
+//int Thread::maxNumOfThreads = 5;
+//bool Thread::maxThread = false;
+Semaphore *Thread::sem = nullptr;
 
 // ============= SEMAFOR =============
-Semaphore::Semaphore(unsigned int init) : myHandle(nullptr) {
-    sem_open(&myHandle, init);
-}
+Semaphore::Semaphore(unsigned init) : myHandle(nullptr) { sem_open(&myHandle, init); }
 
 Semaphore::~Semaphore() { sem_close(myHandle); }
 
@@ -65,11 +80,16 @@ PeriodicThread::PeriodicThread(time_t period) : period(period) {}
 
 void PeriodicThread::terminate() { period = 0; }
 
-// ============= KONZOLA =============
-void Console::putc(char c) {
-    ::putc(c);
+void PeriodicThread::run() {
+    while (period) {
+        Thread::sleep(period);
+        periodicActivation();
+    }
+
+    thread_exit();
 }
 
-char Console::getc() {
-    return ::getc();
-}
+// ============= KONZOLA =============
+char Console::getc() { return ::getc(); }
+
+void Console::putc(char c) { ::putc(c); }

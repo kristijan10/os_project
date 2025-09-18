@@ -1,6 +1,5 @@
 
 #include "../h/syscall_c.h"
-
 #include "buffer.hpp"
 
 static sem_t waitForAll;

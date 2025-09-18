@@ -1,9 +1,10 @@
 #include "printing.hpp"
+#include "mojTest.hpp"
 
 #define LEVEL_1_IMPLEMENTED 0
 #define LEVEL_2_IMPLEMENTED 1
-#define LEVEL_3_IMPLEMENTED 0
-#define LEVEL_4_IMPLEMENTED 0
+#define LEVEL_3_IMPLEMENTED 1
+#define LEVEL_4_IMPLEMENTED 1
 
 #if LEVEL_2_IMPLEMENTED == 1
 // TEST 1 (zadatak 2, niti C API i sinhrona promena konteksta)
@@ -29,6 +30,10 @@
 #include "System_Mode_test.hpp"
 
 #endif
+
+void testSemaphores();
+void complexTCBTest();
+void testSem();
 
 void userMain() {
     printString("Unesite broj testa? [1-7]\n");
@@ -100,6 +105,29 @@ void userMain() {
             printString("TEST 7 (zadatak 2., testiranje da li se korisnicki kod izvrsava u korisnickom rezimu)\n");
 #endif
             break;
+        case 8:
+            mojTestThreadGetId();
+            printString("TEST 8\n");
+            break;
+//        case 9:
+//            randomTest();
+//            printString("TEST 9 (RandomTest)\n");
+//            break;
+//        case 8:
+
+//            break;
+//        case 9:
+//            mojTestJoin();
+//            printString("TEST 10 (join)\n");
+//            break;
+//        case 8:
+//            testMainGetId();
+//            printString("TEST getMainId\n");
+//            break;
+//        case 9:
+//            testMaxThreads();
+//            printString("TEST MaxThreads\n");
+//            break;
         default:
             printString("Niste uneli odgovarajuci broj za test\n");
     }

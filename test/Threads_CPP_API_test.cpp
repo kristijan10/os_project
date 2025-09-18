@@ -54,7 +54,6 @@ public:
 };
 
 void WorkerA::workerBodyA(void *arg) {
-    printString("Usao u A\n");
     for (uint64 i = 0; i < 10; i++) {
         printString("A: i="); printInt(i); printString("\n");
         for (uint64 j = 0; j < 10000; j++) {
@@ -67,7 +66,6 @@ void WorkerA::workerBodyA(void *arg) {
 }
 
 void WorkerB::workerBodyB(void *arg) {
-    printString("Usao u B\n");
     for (uint64 i = 0; i < 16; i++) {
         printString("B: i="); printInt(i); printString("\n");
         for (uint64 j = 0; j < 10000; j++) {

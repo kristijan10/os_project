@@ -1,35 +1,14 @@
-#ifndef syscall_cpp
-#define syscall_cpp
+#ifndef syscall_cpp_hpp
+#define syscall_cpp_hpp
 
-#include "../lib/hw.h"
-#include "../h/syscall_c.h"
+#include "syscall_c.h"
+//#include "allocator.hpp"
 
 // ============= MEMORIJA =============
-void *operator new(size_t size);
+void *operator new (size_t size);
 void operator delete (void *ptr) noexcept;
 
-// ============= NITI =============
-class Thread{
-public:
-    Thread(void (*body)(void *), void *arg);
-    virtual ~Thread();
-
-    int start();
-
-    static void dispatch();
-    static int sleep(time_t time);
-
-protected:
-    Thread();
-    virtual void run(){}
-
-private:
-    thread_t myHandle;
-    void (*body)(void *);
-    void *arg;
-    static void runWrapper(void *ptr);
-};
-
+// ============= SEMAFOR =============
 class Semaphore{
 public:
     explicit Semaphore(unsigned init = 1);
@@ -44,6 +23,40 @@ private:
     sem_t myHandle;
 };
 
+// ============= KONZOLA =============
+class Console{
+public:
+    static char getc();
+    static void putc(char c);
+};
+
+// ============= NITI =============
+class Thread{
+public:
+    Thread(void (*body)(void *), void *arg);
+    virtual ~Thread();
+
+    int start();
+    int getId() const;
+
+    static void dispatch();
+    static int sleep(time_t time);
+
+protected:
+    Thread();
+    virtual void run(){}
+
+private:
+    thread_t myHandle;
+    static Semaphore *sem;
+    void (*body)(void *);
+    void *arg;
+    int id;
+
+    static void wrapper(void *thread);
+};
+
+// ============= PERIODICNE NITI =============
 class PeriodicThread : public Thread{
 public:
     void terminate();
@@ -54,12 +67,7 @@ protected:
 
 private:
     time_t period;
-};
-
-class Console{
-public:
-    static char getc();
-    static void putc(char c);
+    void run();
 };
 
 #endif

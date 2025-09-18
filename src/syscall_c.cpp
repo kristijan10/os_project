@@ -1,25 +1,29 @@
 #include "../h/syscall_c.h"
-#include "../lib/mem.h"
-#include "../lib/console.h"
-#include "../h/print.hpp"
+#include "../h/riscv.hpp"
 
 // ============= MEMORIJA =============
 void *mem_alloc(size_t size) {
-    printStr("_c: mem_alloc\n");
-    uint64 numOfBlocks = size / MEM_BLOCK_SIZE + (size % MEM_BLOCK_SIZE ? 1 : 0) + 1;
+    size_t newSize = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 
-    asm volatile("mv a1, %0" : : "r" (numOfBlocks));
-    asm volatile("mv a0, %0" : : "r" ((uint64) MEM_ALLOC));
+    asm volatile("mv a1, %0" : : "r" (newSize));
+    asm volatile("mv a0, %0" : : "r" (Riscv::MEM_ALLOC));
 
     asm volatile("ecall");
 
-    void *ret;
-    asm volatile("mv %0, a0" : "=r" (ret));
-    return ret;
+    void *ptr;
+    asm volatile("mv %0, a0" : "=r" (ptr));
+    return ptr;
 }
 
 int mem_free(void *ptr) {
-    return __mem_free(ptr);
+    asm volatile("mv a1, %0" : : "r"(ptr));
+    asm volatile("mv a0, %0" : : "r"(Riscv::MEM_FREE));
+
+    asm volatile("ecall");
+
+    int retval;
+    asm volatile("mv %0, a0" : "=r"(retval));
+    return retval;
 }
 
 // ============= NITI =============
@@ -27,65 +31,142 @@ int thread_create(thread_t *handle, void(*start_routine)(void *), void *arg) {
     asm volatile("mv a3, %0" : : "r" ((uint64) arg));
     asm volatile("mv a2, %0" : : "r" ((uint64) start_routine));
     asm volatile("mv a1, %0" : : "r" ((uint64) handle));
-    asm volatile("mv a0, %0" : : "r"((uint64) THREAD_CREATE));
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_CREATE));
 
-    printStr("thread_create\na0=");
-    printInteger(THREAD_CREATE);
-    printStr("\n");
     asm volatile("ecall");
 
-    uint64 ret;
+    int ret;
     asm volatile("mv %0, a0" : "=r" (ret));
-    return (int) ret;
+    return ret;
 }
 
 int thread_exit() {
-    asm volatile("mv a0, %0" : : "r" ((uint64) THREAD_EXIT));
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_EXIT));
 
     asm volatile("ecall");
 
-    uint64 ret;
+    int ret;
     asm volatile("mv %0, a0" : "=r" (ret));
-    return (int) ret;
+    return ret;
 }
 
 void thread_dispatch() {
-    asm volatile("mv a0, %0" : : "r" ((uint64) THREAD_DISPATCH));
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_DISPATCH));
 
     asm volatile("ecall");
 }
 
+//int thread_join(thread_t *handle){
+//    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
+//    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_JOIN));
+//
+//    asm volatile("ecall");
+//}
+
+int thread_getId(){
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_GET_ID));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
+
 // ============= SEMAFOR =============
-int sem_open(sem_t *handle, unsigned init) { return 0; }
+int sem_open(sem_t *handle, unsigned init) {
+    asm volatile("mv a2, %0" : : "r" (init));
+    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_OPEN));
 
-int sem_close(sem_t handle) { return 0; }
+    asm volatile("ecall");
 
-int sem_wait(sem_t id) { return 0; }
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
 
-int sem_signal(sem_t id) { return 0; }
+int sem_close(sem_t handle) {
+    asm volatile("mv a1, %0" : : "r" (handle));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_CLOSE));
 
-int sem_timedwait(sem_t id, time_t timeout) { return 0; }
+    asm volatile("ecall");
 
-int sem_trywait(sem_t id) { return 0; }
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
 
-int time_sleep(time_t time) { return 0; }
+int sem_wait(sem_t handle) {
+    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_WAIT));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
+
+int sem_signal(sem_t handle) {
+    asm volatile("mv a1, %0" : : "r" ((uint64) handle));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_SIGNAL));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
+
+int sem_timedwait(sem_t id, time_t timeout) {
+    asm volatile("mv a2, %0" : : "r" ((uint64) timeout));
+    asm volatile("mv a1, %0" : : "r" ((uint64) id));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_TIMEDWAIT));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
+
+int sem_trywait(sem_t id) {
+    asm volatile("mv a1, %0" : : "r" ((uint64) id));
+    asm volatile("mv a0, %0" : : "r" (Riscv::SEM_TRYWAIT));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
+
+int time_sleep(time_t time) {
+    asm volatile("mv a1, %0" : : "r" ((uint64) time));
+    asm volatile("mv a0, %0" : : "r" (Riscv::TIME_SLEEP));
+
+    asm volatile("ecall");
+
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
+    return ret;
+}
 
 // ============= KONZOLA =============
 char getc() {
-//    asm volatile("mv a0, %0" : : "r" ((uint64) CONSOLE_GETC));
-//
-//    asm volatile("ecall");
-//
-//    uint64 ret;
-//    asm volatile("mv %0, a0" : "=r" (ret));
-//    return (char) ret;
-    return __getc();
+    asm volatile("mv a0, %0" : : "r"(Riscv::CONSOLE_GETC));
+
+    asm volatile("ecall");
+
+    char c;
+    asm volatile("mv %0, a0" : "=r"(c));
+    return c;
 }
 
 void putc(char c) {
-//    asm volatile("mv a1, %0" : : "r" ((uint64) c));
-//    asm volatile("mv a0, %0" : : "r" ((uint64) CONSOLE_PUTC));
-//
-//    asm volatile("ecall");
-    __putc(c);
+    asm volatile("mv a1, %0" : : "r"(c));
+    asm volatile("mv a0, %0" : : "r"(Riscv::CONSOLE_PUTC));
+
+    asm volatile("ecall");
 }

@@ -1,33 +1,38 @@
 #include "../h/tcb.hpp"
-#include "../h/print.hpp"
 #include "../h/riscv.hpp"
 #include "../h/syscall_c.h"
-#include "../lib/console.h"
+#include "../h/sem.hpp"
+#include "../h/allocator.hpp"
 
-extern void userMain();
+void userMain();
+void testSemaphores();
 
 void userMainWrapper(void *) {
     userMain();
 }
 
 int main() {
-    TCB *mainThread = TCB::createThread(nullptr, nullptr);
-    printStr("mainThread created!\n");
-    TCB::running = mainThread;
+    Allocator::init();
 
-    TCB *userThread = TCB::createThread(userMainWrapper, nullptr);
-    printStr("userThread created!\n");
+    TCB *threads[2];
 
-    Riscv::w_sstatus(Riscv::SSTATUS_SIE);
-    Riscv::w_stvec((uint64) Riscv::supervisorTrap);
+    // postavljanje supervisor trap handlera
+    Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
 
-    while (!(mainThread->isFinished() && userThread->isFinished())) {
-        thread_dispatch();
-    }
+    // omogućavanje interapt-a
+    Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
-    delete userThread;
-    delete mainThread;
+    // kreiranje glavnog thread-a
+    threads[0] = TCB::createThread(nullptr, nullptr);
+    TCB::running = threads[0];
 
-    printStr("Finished\n");
+    // kreiranje korisničkog thread-a
+    threads[1] = TCB::createThread(userMainWrapper, nullptr);
+
+    // dispatcher dok se korisnički thread ne završi
+    while (!threads[1]->isFinished()) thread_dispatch();
+
+    delete threads[1];
+
     return 0;
 }
