@@ -71,12 +71,15 @@ void Riscv::handleSupervisorTrap() {
 //
 //                break;
 //            }
-//            case 0x15: {
-//                int t_id = TCB::running->getPid();
+            case THREAD_GET_ID: {
+                int t_id = TCB::running->getPid();
+                printString("riscv:\t");
+                printInt(t_id);
+                printString("\n");
 
-//                asm volatile("sd %0, 8*10(fp)" : : "r" (t_id));
-//                break;
-//            }
+                asm volatile("sd %0, 8*10(fp)" : : "r" (t_id));
+                break;
+            }
             case SEM_OPEN: {
                 auto handle = (Sem **) a1;
                 auto init = (int) a2;
@@ -163,14 +166,21 @@ void Riscv::handleSupervisorTrap() {
     } else if (scause == 0x8000000000000001UL) {
         uint64 volatile sepc = r_sepc();
         uint64 volatile sstatus = r_sstatus();
+//
+//        // timer interrupt
+//        TCB::timeSliceCounter++;
+//        Scheduler::updateSleep();
+//
+//        if (TCB::timeSliceCounter >= TCB::running->getTimeSlice()) {
+//            TCB::timeSliceCounter = 0;
+//            TCB::dispatch();
+//        }
 
-        // timer interrupt
-        TCB::timeSliceCounter++;
-        Scheduler::updateSleep();
-
-        if (TCB::timeSliceCounter >= TCB::running->getTimeSlice()) {
+        if(TCB::timeSliceCounter++ >= 10 && !(TCB::readyToPrintA || TCB::readyToPrintB || TCB::readyToPrintC)) {
+            TCB::readyToPrintA = true;
+            TCB::readyToPrintB = true;
+            TCB::readyToPrintC = true;
             TCB::timeSliceCounter = 0;
-            TCB::dispatch();
         }
 
         mc_sip(SIP_SSIP);

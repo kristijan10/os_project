@@ -22,7 +22,7 @@ void thread_dispatch();
 
 //void thread_join(thread_t *handle);
 
-//int thread_getId();
+int thread_getId();
 
 // ============= SEMAFOR =============
 class Sem;

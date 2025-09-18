@@ -106,7 +106,7 @@ void userMain() {
 #endif
             break;
         case 8:
-            testSem();
+            mojTestThreadGetId();
             printString("TEST 8\n");
             break;
 //        case 9:

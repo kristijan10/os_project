@@ -64,16 +64,16 @@ void thread_dispatch() {
 //    asm volatile("ecall");
 //}
 
-//int thread_getId(){
-//    asm volatile("mv a0, %0" : : "r" (0x15));
+int thread_getId(){
+    asm volatile("mv a0, %0" : : "r" (Riscv::THREAD_GET_ID));
 
-//    asm volatile("ecall");
+    asm volatile("ecall");
 
-//    int ret;
-//    asm volatile("mv %0, a0" : "=r" (ret));
+    int ret;
+    asm volatile("mv %0, a0" : "=r" (ret));
 //    thread_dispatch();
-//    return ret;
-//}
+    return ret;
+}
 
 // ============= SEMAFOR =============
 int sem_open(sem_t *handle, unsigned init) {

@@ -57,6 +57,10 @@ void Thread::wrapper(void *thread) {
 //    }
 }
 
+int Thread::getId() const {
+    return thread_getId();
+}
+
 //void Thread::join() { if (myHandle) thread_join(&myHandle); }
 
 //int Thread::maxNumOfThreads = 5;

@@ -18,6 +18,7 @@ public:
         THREAD_EXIT = 0x12,
         THREAD_DISPATCH = 0x13,
         THREAD_JOIN = 0x14,
+        THREAD_GET_ID = 0x15,
         SEM_OPEN = 0x21,
         SEM_CLOSE = 0x22,
         SEM_WAIT = 0x23,

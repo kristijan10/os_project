@@ -42,7 +42,7 @@ public:
 //        maxNumOfThreads = num;
 //        maxThread = true;
 //    }
-//    int getThId(){return id;}
+    int getId() const;
 
     static void dispatch();
     static int sleep(time_t time);
@@ -57,7 +57,7 @@ private:
     static Semaphore *sem;
     void (*body)(void *);
     void *arg;
-//    int id;
+    int id;
 //    static bool maxThread;
 //    static int maxNumOfThreads;
 

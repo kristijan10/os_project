@@ -6,6 +6,9 @@
 TCB *TCB::running = nullptr;
 uint64 TCB::timeSliceCounter = 0;
 uint64 TCB::PID = 0;
+bool TCB::readyToPrintA = false;
+bool TCB::readyToPrintB = false;
+bool TCB::readyToPrintC = false;
 //int TCB::id_th = -2;
 
 TCB *TCB::createThread(TCB::Body body, void *arg) {

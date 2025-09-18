@@ -12,6 +12,10 @@ public:
         CREATED, RUNNING, READY, BLOCKED, FINISHED
     };
 
+    static bool readyToPrintA;
+    static bool readyToPrintB;
+    static bool readyToPrintC;
+
     using Body = void (*)(void *);
 
     bool isFinished() const { return state==FINISHED; }
@@ -36,7 +40,7 @@ public:
 
     time_t getTime() const { return time; }
 
-    uint64 getPid() const { return pid; }
+    int getPid() const { return running->pid; }
 
     friend class Riscv;
 
@@ -87,7 +91,7 @@ private:
     static uint64 timeSliceCounter;
     State state;
     static uint64 PID;
-    uint64 pid;
+    int pid;
     time_t time;
 //    bool userMode;
 //    sem_t semJoin;
